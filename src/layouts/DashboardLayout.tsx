@@ -1,5 +1,6 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/contexts/AuthContext'
 
 const sidebarLinks = [
   { href: '/dashboard', label: 'Overview' },
@@ -9,6 +10,14 @@ const sidebarLinks = [
 ]
 
 export function DashboardLayout() {
+  const { signOut } = useAuth();
+  const navigate = useNavigate()
+
+    const handleSignOut = async () => {
+      await signOut();
+      navigate('/');
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="grid min-h-screen grid-cols-[240px_1fr]">
@@ -35,7 +44,7 @@ export function DashboardLayout() {
             ))}
           </nav>
 
-          <Button variant="secondary" size="sm" className="w-full">
+          <Button variant="secondary" size="sm" className="w-full" onClick={handleSignOut}>
             Logout
           </Button>
         </aside>
