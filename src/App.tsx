@@ -1,9 +1,9 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { AuthLayout } from './layouts/AuthLayout'
-import { DashboardLayout } from './layouts/DashboardLayout'
-import DashboardPage from './pages/Dashboard'
-import HomePage from './pages/Home'
-import LoginPage from './pages/Login'
+import { AuthLayout } from '@/layouts/AuthLayout'
+import { DashboardLayout } from '@/layouts/DashboardLayout'
+import DashboardPage from '@/pages/Dashboard'
+import HomePage from '@/pages/Home'
+import LoginPage from '@/pages/Login'
 
 function App() {
   return (

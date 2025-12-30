@@ -1,6 +1,12 @@
 import { Link } from 'react-router-dom'
-import { Button } from '../components/ui/button'
-import { Card } from '../components/ui/card'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 const highlights = [
   {
@@ -20,13 +26,19 @@ const highlights = [
 function HomePage() {
   return (
     <div className="flex flex-col gap-10">
-      <section className="grid items-center gap-10 rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900/60 to-indigo-950 p-10 shadow-xl">
-        <div className="flex flex-col gap-6">
-          <p className="text-sm uppercase tracking-[0.2em] text-indigo-200">Boka Businesses</p>
-          <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl">
+      <section className="relative overflow-hidden rounded-3xl border bg-gradient-to-br from-background via-background to-muted/60 p-10 shadow-sm">
+        <div className="pointer-events-none absolute inset-0 opacity-50">
+          <div className="absolute inset-y-0 left-1/3 w-72 rounded-full bg-primary/20 blur-3xl" />
+          <div className="absolute inset-y-0 right-1/3 w-72 rounded-full bg-accent/30 blur-3xl" />
+        </div>
+        <div className="relative flex flex-col gap-6">
+          <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">
+            Boka Businesses
+          </p>
+          <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
             Manage your barbershop in one place.
           </h1>
-          <p className="max-w-2xl text-lg text-slate-300">
+          <p className="max-w-2xl text-lg text-muted-foreground">
             A centralized dashboard for staff to view bookings, monitor payments, and keep the team
             aligned. Built to pair with your customer-facing booking site.
           </p>
@@ -43,9 +55,11 @@ function HomePage() {
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {highlights.map(({ title, description }) => (
-          <Card key={title} className="flex flex-col gap-3">
-            <h3 className="text-lg font-semibold text-white">{title}</h3>
-            <p className="text-sm text-slate-300">{description}</p>
+          <Card key={title}>
+            <CardHeader>
+              <CardTitle>{title}</CardTitle>
+              <CardDescription>{description}</CardDescription>
+            </CardHeader>
           </Card>
         ))}
       </section>
