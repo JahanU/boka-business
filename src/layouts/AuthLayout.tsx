@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/', label: 'Home' },
-  { href: '/login', label: 'Login' },
 ]
 
 export function AuthLayout() {

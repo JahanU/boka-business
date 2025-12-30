@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -36,13 +35,6 @@ function LoginPage() {
               Continue
             </Button>
           </form>
-
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <Link to="/">Back to home</Link>
-            <Link to="/dashboard" className="text-primary hover:underline">
-              Skip to dashboard preview
-            </Link>
-          </div>
         </CardContent>
       </Card>
     </div>

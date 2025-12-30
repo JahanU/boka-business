@@ -46,9 +46,6 @@ function HomePage() {
             <Button asChild size="lg">
               <Link to="/login">Go to staff login</Link>
             </Button>
-            <Button asChild size="lg" variant="secondary">
-              <Link to="/dashboard">Preview dashboard shell</Link>
-            </Button>
           </div>
         </div>
       </section>
