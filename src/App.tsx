@@ -5,6 +5,7 @@ import DashboardPage from '@/pages/Dashboard'
 import HomePage from '@/pages/Home'
 import LoginPage from '@/pages/Login'
 import ResetPasswordPage from '@/pages/ResetPassword'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { AuthProvider } from './contexts/AuthContext'
 
 function App() {
@@ -19,7 +20,14 @@ function App() {
           </Route>
 
           <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
         </Routes>
       </Router>
