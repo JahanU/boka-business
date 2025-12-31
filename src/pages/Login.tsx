@@ -13,12 +13,14 @@ import { Label } from '@/components/ui/label'
 import { useAuth } from '@/contexts/AuthContext'
 
 function LoginPage() {
-  const { signIn, user, loading } = useAuth()
+  const { signIn, resetPassword, user, loading } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [mode, setMode] = useState<'login' | 'reset'>('login')
 
   useEffect(() => {
     if (!loading && user) {
@@ -26,19 +28,34 @@ function LoginPage() {
     }
   }, [loading, user, navigate])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
+    setMessage(null)
     setSubmitting(true)
-    const { error: signInError } = await signIn(email, password)
-    setSubmitting(false)
+    if (mode === 'login') {
+      const { error: signInError } = await signIn(email, password)
+      setSubmitting(false)
 
-    if (signInError) {
-      setError(signInError.message)
+      if (signInError) {
+        setError(signInError.message)
+        return
+      }
+
+      navigate('/dashboard')
       return
     }
 
-    navigate('/dashboard')
+    const { error: resetError } = await resetPassword(email)
+    setSubmitting(false)
+
+    if (resetError) {
+      setError(resetError.message)
+      return
+    }
+
+    setMessage('Check your email for a password reset link.')
+    setMode('login')
   }
 
   return (
@@ -67,27 +84,47 @@ function LoginPage() {
                 required
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
-            </div>
-            {error ? (
+            {mode === 'login' && (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
+              </div>
+            )}
+            {error && (
               <p className="text-sm text-destructive" role="alert">
                 {error}
               </p>
-            ) : null}
+            )}
+            {message && (
+              <p className="text-sm text-muted-foreground" role="status">
+                {message}
+              </p>
+            )}
             <Button type="submit" size="lg" disabled={submitting || loading}>
-              {submitting ? 'Signing in...' : 'Continue'}
+              {submitting ? 'Working...' : mode === 'login' ? 'Continue' : 'Send reset link'}
             </Button>
+            <button
+              type="button"
+              className="text-sm text-muted-foreground underline underline-offset-4 transition hover:text-foreground"
+              onClick={() => {
+                setMode((current) => (current === 'login' ? 'reset' : 'login'))
+                setError(null)
+                setMessage(null)
+                setSubmitting(false)
+                setPassword('')
+              }}
+            >
+              {mode === 'login' ? 'Forgot password?' : 'Back to login'}
+            </button>
           </form>
         </CardContent>
       </Card>
