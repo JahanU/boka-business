@@ -1,4 +1,3 @@
-import { act } from 'react'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { vi } from 'vitest'
@@ -12,12 +11,7 @@ vi.mock('@/contexts/AuthContext', () => ({
 
 describe('ProtectedRoute', () => {
   beforeEach(() => {
-    vi.useFakeTimers()
     mockUseAuth.mockReset()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
   })
 
   it('shows loading state while auth is loading', () => {
@@ -44,10 +38,6 @@ describe('ProtectedRoute', () => {
         </ProtectedRoute>
       </MemoryRouter>,
     )
-
-    act(() => {
-      vi.runAllTimers()
-    })
 
     expect(screen.getByText('Private')).toBeInTheDocument()
   })
