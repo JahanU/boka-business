@@ -11,26 +11,26 @@ import { AuthProvider } from './contexts/AuthContext'
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route element={<AuthLayout />}>
-            <Route index element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-          </Route>
+    <Router>
+      <Routes>
+        <Route element={<AuthLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+        </Route>
 
-          <Route element={<DashboardLayout />}>
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
-        </Routes>
-      </Router>
+        <Route element={<DashboardLayout />}>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+      </Routes>
+    </Router>
     </AuthProvider>
   )
 }
