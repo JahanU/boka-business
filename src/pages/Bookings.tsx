@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { appointmentService } from "@/services/appointmentService";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Appointment } from "@/types";
-import { Loader2, Calendar, Clock, User, Phone, Mail, Trash2 } from "lucide-react";
+import { Loader2, Calendar, Clock, User, Phone, Mail, Trash2, Scissors } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 
@@ -30,11 +30,11 @@ export default function BookingsPage() {
 
 	const getStatusVariant = (status: Appointment['status']) => {
 		switch (status) {
-		case 'confirmed': return 'success';
-		case 'pending': return 'warning';
-		case 'cancelled': return 'destructive';
-		case 'completed': return 'info';
-		default: return 'secondary';
+			case 'confirmed': return 'success';
+			case 'pending': return 'warning';
+			case 'cancelled': return 'destructive';
+			case 'completed': return 'info';
+			default: return 'secondary';
 		}
 	};
 
@@ -94,9 +94,10 @@ export default function BookingsPage() {
 											<Badge variant={getStatusVariant(booking.status)} className="capitalize font-medium">
 												{booking.status}
 											</Badge>
-											<span className="text-sm font-semibold text-primary">
+											<div className="flex items-center gap-1.5 text-sm font-semibold text-primary">
+												<Scissors className="h-4 w-4" />
 												{booking.service_name || 'Standard Service'}
-											</span>
+											</div>
 										</div>
 
 										<div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6">
