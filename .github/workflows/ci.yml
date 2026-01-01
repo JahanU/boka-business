@@ -23,34 +23,57 @@ jobs:
         continue-on-error: true
         run: |
           set +e
+          echo "start=$(date +%s)" >> "$GITHUB_OUTPUT"
           npm run lint -- --format json -o eslint.json
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          echo "end=$(date +%s)" >> "$GITHUB_OUTPUT"
       - name: Run TypeScript
         id: typecheck
         continue-on-error: true
         run: |
           set +e
+          echo "start=$(date +%s)" >> "$GITHUB_OUTPUT"
           npm run typecheck -- --pretty false --noErrorTruncation > tsc.log 2>&1
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          echo "end=$(date +%s)" >> "$GITHUB_OUTPUT"
       - name: Run Vitest
         id: test
         continue-on-error: true
         run: |
           set +e
+          echo "start=$(date +%s)" >> "$GITHUB_OUTPUT"
           npm run test -- --watch=false --reporter=default --reporter=json --outputFile=vitest.json
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          echo "end=$(date +%s)" >> "$GITHUB_OUTPUT"
       - name: Report status
         if: always()
         env:
           LINT_EXIT: ${{ steps.lint.outputs.exit_code }}
           TYPECHECK_EXIT: ${{ steps.typecheck.outputs.exit_code }}
           TEST_EXIT: ${{ steps.test.outputs.exit_code }}
+          LINT_START: ${{ steps.lint.outputs.start }}
+          LINT_END: ${{ steps.lint.outputs.end }}
+          TYPECHECK_START: ${{ steps.typecheck.outputs.start }}
+          TYPECHECK_END: ${{ steps.typecheck.outputs.end }}
+          TEST_START: ${{ steps.test.outputs.start }}
+          TEST_END: ${{ steps.test.outputs.end }}
         run: |
           node <<'NODE'
           const fs = require('fs');
           const lintExit = Number(process.env.LINT_EXIT || 1);
           const typeExit = Number(process.env.TYPECHECK_EXIT || 1);
           const testExit = Number(process.env.TEST_EXIT || 1);
+          const toDuration = (start, end) => {
+            if (!start || !end) return 'n/a';
+            const seconds = Math.max(0, Number(end) - Number(start));
+            const mins = Math.floor(seconds / 60);
+            const rem = seconds % 60;
+            return mins ? `${mins}m ${rem}s` : `${rem}s`;
+          };
+          const lintDuration = toDuration(process.env.LINT_START, process.env.LINT_END);
+          const typeDuration = toDuration(process.env.TYPECHECK_START, process.env.TYPECHECK_END);
+          const testDuration = toDuration(process.env.TEST_START, process.env.TEST_END);
+          const withIcon = (status) => (status === 'passed' ? '✅' : '❌');
 
           let eslintSummary = 'ESLint: skipped';
           if (fs.existsSync('eslint.json')) {
@@ -61,9 +84,9 @@ jobs:
             const totalErrors = results.reduce((sum, r) => sum + r.errorCount, 0);
             const totalWarnings = results.reduce((sum, r) => sum + r.warningCount, 0);
             const status = lintExit === 0 ? 'passed' : 'failed';
-            eslintSummary = `ESLint: ${status} (${filesChecked} files, ${totalErrors} errors, ${totalWarnings} warnings, ${errorFiles} files with errors, ${warningFiles} files with warnings)`;
+            eslintSummary = `${withIcon(status)} ESLint: ${status} (${filesChecked} files, ${totalErrors} errors, ${totalWarnings} warnings, ${errorFiles} files with errors, ${warningFiles} files with warnings, ${lintDuration})`;
           } else if (lintExit === 0) {
-            eslintSummary = 'ESLint: passed';
+            eslintSummary = `✅ ESLint: passed (${lintDuration})`;
           }
 
           let typeSummary = 'TypeScript: skipped';
@@ -72,24 +95,39 @@ jobs:
             const match = output.match(/Found (\d+) errors? in (\d+) files?/);
             const status = typeExit === 0 ? 'passed' : 'failed';
             if (match) {
-              typeSummary = `TypeScript: ${status} (${match[1]} errors in ${match[2]} files)`;
+              typeSummary = `${withIcon(status)} TypeScript: ${status} (${match[1]} errors in ${match[2]} files, ${typeDuration})`;
             } else {
-              typeSummary = `TypeScript: ${status}`;
+              typeSummary = `${withIcon(status)} TypeScript: ${status} (${typeDuration})`;
             }
           } else if (typeExit === 0) {
-            typeSummary = 'TypeScript: passed';
+            typeSummary = `✅ TypeScript: passed (${typeDuration})`;
           }
 
           let testSummary = 'Vitest: skipped';
+          let suiteSummary = '';
           if (fs.existsSync('vitest.json')) {
             const report = JSON.parse(fs.readFileSync('vitest.json', 'utf8'));
             const numTotalTests = report.numTotalTests ?? report.totalTests ?? 0;
             const numPassedTests = report.numPassedTests ?? report.passedTests ?? 0;
             const numFailedTests = report.numFailedTests ?? report.failedTests ?? 0;
             const status = testExit === 0 ? 'passed' : 'failed';
-            testSummary = `Vitest: ${status} (${numTotalTests} tests, ${numPassedTests} passed, ${numFailedTests} failed)`;
+            testSummary = `${withIcon(status)} Vitest: ${status} (${numTotalTests} tests, ${numPassedTests} passed, ${numFailedTests} failed, ${testDuration})`;
+
+            const testResults = report.testResults || [];
+            if (testResults.length) {
+              const suiteLines = testResults.map((suite) => {
+                const suiteName = suite.name || suite.file || 'unknown';
+                const assertions = suite.assertionResults || [];
+                const passed = assertions.filter((t) => t.status === 'passed').length;
+                const failed = assertions.filter((t) => t.status === 'failed').length;
+                const total = assertions.length;
+                const duration = suite.duration != null ? `${suite.duration}ms` : 'n/a';
+                return `  - ${suiteName}: ${total} tests (${passed} passed, ${failed} failed, ${duration})`;
+              });
+              suiteSummary = ['','**Vitest Suites**', ...suiteLines].join('\n');
+            }
           } else if (testExit === 0) {
-            testSummary = 'Vitest: passed';
+            testSummary = `✅ Vitest: passed (${testDuration})`;
           }
 
           const summary = [
@@ -98,10 +136,44 @@ jobs:
             `- ${eslintSummary}`,
             `- ${typeSummary}`,
             `- ${testSummary}`,
+            suiteSummary,
           ].join('\n');
 
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary + '\n');
+          fs.writeFileSync('ci-summary.md', summary + '\n');
           NODE
+      - name: Comment on PR
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('ci-summary.md', 'utf8');
+            const marker = '<!-- ci-summary -->';
+            const body = `${marker}\n${summary}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+            });
+            const existing = comments.find((comment) => comment.body && comment.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }
       - name: Fail if any checks failed
         if: always()
         run: |
