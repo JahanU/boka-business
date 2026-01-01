@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    name: Lint, Typecheck, Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,8 +19,94 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run ESLint
-        run: npm run lint
+        id: lint
+        continue-on-error: true
+        run: |
+          set +e
+          npm run lint -- --format json -o eslint.json
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
       - name: Run TypeScript
-        run: npm run typecheck
+        id: typecheck
+        continue-on-error: true
+        run: |
+          set +e
+          npm run typecheck -- --pretty false --noErrorTruncation > tsc.log 2>&1
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
       - name: Run Vitest
-        run: npm run test -- --watch=false
+        id: test
+        continue-on-error: true
+        run: |
+          set +e
+          npm run test -- --watch=false --reporter=default --reporter=json --outputFile=vitest.json
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+      - name: Report status
+        if: always()
+        env:
+          LINT_EXIT: ${{ steps.lint.outputs.exit_code }}
+          TYPECHECK_EXIT: ${{ steps.typecheck.outputs.exit_code }}
+          TEST_EXIT: ${{ steps.test.outputs.exit_code }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const lintExit = Number(process.env.LINT_EXIT || 1);
+          const typeExit = Number(process.env.TYPECHECK_EXIT || 1);
+          const testExit = Number(process.env.TEST_EXIT || 1);
+
+          let eslintSummary = 'ESLint: skipped';
+          if (fs.existsSync('eslint.json')) {
+            const results = JSON.parse(fs.readFileSync('eslint.json', 'utf8'));
+            const filesChecked = results.length;
+            const errorFiles = results.filter((r) => r.errorCount > 0).length;
+            const warningFiles = results.filter((r) => r.warningCount > 0).length;
+            const totalErrors = results.reduce((sum, r) => sum + r.errorCount, 0);
+            const totalWarnings = results.reduce((sum, r) => sum + r.warningCount, 0);
+            const status = lintExit === 0 ? 'passed' : 'failed';
+            eslintSummary = `ESLint: ${status} (${filesChecked} files, ${totalErrors} errors, ${totalWarnings} warnings, ${errorFiles} files with errors, ${warningFiles} files with warnings)`;
+          } else if (lintExit === 0) {
+            eslintSummary = 'ESLint: passed';
+          }
+
+          let typeSummary = 'TypeScript: skipped';
+          if (fs.existsSync('tsc.log')) {
+            const output = fs.readFileSync('tsc.log', 'utf8');
+            const match = output.match(/Found (\d+) errors? in (\d+) files?/);
+            const status = typeExit === 0 ? 'passed' : 'failed';
+            if (match) {
+              typeSummary = `TypeScript: ${status} (${match[1]} errors in ${match[2]} files)`;
+            } else {
+              typeSummary = `TypeScript: ${status}`;
+            }
+          } else if (typeExit === 0) {
+            typeSummary = 'TypeScript: passed';
+          }
+
+          let testSummary = 'Vitest: skipped';
+          if (fs.existsSync('vitest.json')) {
+            const report = JSON.parse(fs.readFileSync('vitest.json', 'utf8'));
+            const numTotalTests = report.numTotalTests ?? report.totalTests ?? 0;
+            const numPassedTests = report.numPassedTests ?? report.passedTests ?? 0;
+            const numFailedTests = report.numFailedTests ?? report.failedTests ?? 0;
+            const status = testExit === 0 ? 'passed' : 'failed';
+            testSummary = `Vitest: ${status} (${numTotalTests} tests, ${numPassedTests} passed, ${numFailedTests} failed)`;
+          } else if (testExit === 0) {
+            testSummary = 'Vitest: passed';
+          }
+
+          const summary = [
+            '## CI Summary',
+            '',
+            `- ${eslintSummary}`,
+            `- ${typeSummary}`,
+            `- ${testSummary}`,
+          ].join('\n');
+
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary + '\n');
+          NODE
+      - name: Fail if any checks failed
+        if: always()
+        run: |
+          if [ "${{ steps.lint.outputs.exit_code }}" != "0" ] || \
+             [ "${{ steps.typecheck.outputs.exit_code }}" != "0" ] || \
+             [ "${{ steps.test.outputs.exit_code }}" != "0" ]; then
+            exit 1
+          fi
