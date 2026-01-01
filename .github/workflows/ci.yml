@@ -4,6 +4,10 @@ on:
   pull_request:
   push:
     branches: [main] # run on main too
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   build:
