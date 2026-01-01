@@ -23,3 +23,10 @@ Why it's better for your CI
 - Smaller Bundles: The new transform can slightly reduce the size of your compiled code.
 - Cleaner Code: It removes the "boilerplate" import from the top of your files.
 - Performance: It allows for some optimizations in how components are rendered that createElement didn't support as efficiently.
+
+Postgres
+The error infinite recursion detected happens because the staff table RLS policy was trying to check the staff table to verify your permissions—creating a loop.
+
+To fix this, we use a Security Definer function. This function runs with "system" privileges, allowing it to look up your business ID without triggering the RLS loop.
+
+Please run this SQL block in your Supabase SQL Editor to fix it:

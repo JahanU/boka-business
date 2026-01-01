@@ -1,15 +1,20 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../config/supabaseClient';
+import { staffService } from '@/services/staffService';
+import { businessService } from '@/services/businessService';
+import type { Staff, Business } from '@/types';
 
 interface AuthContextType {
-    user: User | null;
-    session: Session | null;
-    loading: boolean;
-    signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-    resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
-    updatePassword: (password: string) => Promise<{ error: AuthError | null }>;
-    signOut: () => Promise<void>;
+	user: User | null;
+	session: Session | null;
+	staff: Staff | null;
+	business: Business | null;
+	loading: boolean;
+	signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+	resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
+	updatePassword: (password: string) => Promise<{ error: AuthError | null }>;
+	signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,28 +22,52 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
 	const [session, setSession] = useState<Session | null>(null);
+	const [staff, setStaff] = useState<Staff | null>(null);
+	const [business, setBusiness] = useState<Business | null>(null);
 	const [loading, setLoading] = useState(true);
+
+	// Fetch staff and business data when user is authenticated
+	const fetchStaffAndBusiness = async (userId: string) => {
+		const staffData = await staffService.getByUserId(userId);
+		setStaff(staffData);
+
+		if (staffData?.business_id) {
+			const businessData = await businessService.getById(staffData.business_id);
+			setBusiness(businessData);
+		}
+	};
 
 	useEffect(() => {
 		/**
-         * 1) On mount: fetch the initial session from Supabase.
-         * This covers page refreshes / returning users where a session may already exist.
-         */
+		 * 1) On mount: fetch the initial session from Supabase.
+		 * This covers page refreshes / returning users where a session may already exist.
+		 */
 		supabase.auth.getSession().then(({ data: { session } }) => {
 			setSession(session);
 			setUser(session?.user ?? null);
+			if (session?.user) {
+				fetchStaffAndBusiness(session.user.id);
+			}
+
 			setLoading(false);
 		});
 
 		/**
-         * 2) Subscribe to auth state changes (sign in, sign out, token refresh, etc.).
-         * Whenever auth changes, update session/user accordingly.
-         */
+		 * 2) Subscribe to auth state changes (sign in, sign out, token refresh, etc.).
+		 * Whenever auth changes, update session/user accordingly.
+		 */
 		const {
 			data: { subscription },
 		} = supabase.auth.onAuthStateChange((_event, session) => {
 			setSession(session);
 			setUser(session?.user ?? null);
+			if (session?.user) {
+				fetchStaffAndBusiness(session.user.id);
+			} else {
+				setStaff(null);
+				setBusiness(null);
+			}
+
 			setLoading(false);
 		});
 
@@ -72,6 +101,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const value = {
 		user,
 		session,
+		staff,
+		business,
 		loading,
 		signIn,
 		resetPassword,
