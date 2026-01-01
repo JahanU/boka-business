@@ -12,3 +12,14 @@
 - Static analysis makes tree-shaking/dynamic `import()` easier.
 - In Node/Vite, `.mjs` or `"type": "module"` enable ESM, and you use `import.meta.url` + `fileURLToPath` instead of `__dirname`.
 - You can still import CommonJS packages; the reverse requires `import()` or transpilation.
+
+New JSX Transform
+- In a React Vite project, setting "jsx": "react-jsx" in your tsconfig.json is the modern standard.
+What does it do?
+- It enables the New JSX Transform introduced in React 17.
+- Before: You had to import React from 'react' at the top of every single .jsx or .tsx file because the compiler turned JSX into React.createElement().
+- With react-jsx: The compiler automatically imports the necessary transformation functions from the React package. You no longer need to import React manually unless you are using Hooks (like useState) or other exports.
+Why it's better for your CI
+- Smaller Bundles: The new transform can slightly reduce the size of your compiled code.
+- Cleaner Code: It removes the "boilerplate" import from the top of your files.
+- Performance: It allows for some optimizations in how components are rendered that createElement didn't support as efficiently.
