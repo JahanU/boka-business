@@ -126,8 +126,12 @@ jobs:
                 const passed = assertions.filter((t) => t.status === 'passed').length;
                 const failed = assertions.filter((t) => t.status === 'failed').length;
                 const total = assertions.length;
-                const durationMs = suite.duration ?? suite.durationMs ?? suite.result?.duration;
-                const duration = durationMs != null ? `${durationMs}ms` : 'n/a';
+                // Calculate duration from startTime and endTime
+                let duration = 'n/a';
+                if (suite.startTime != null && suite.endTime != null) {
+                  const durationMs = Math.round(suite.endTime - suite.startTime);
+                  duration = `${durationMs}ms`;
+                }
                 return `  - ${suiteName}: ${total} tests (${passed} passed, ${failed} failed, ${duration})`;
               });
               suiteSummary = ['','**Vitest Suites**', ...suiteLines].join('\n');
