@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { StaffAvailability } from "@/components/StaffAvailability/StaffAvailability";
 
 export default function SettingsPage() {
 	return (
@@ -19,6 +20,7 @@ export default function SettingsPage() {
 					</div>
 				</CardContent>
 			</Card>
+			<StaffAvailability />
 		</div>
 	);
 }

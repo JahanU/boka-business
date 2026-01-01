@@ -9,6 +9,8 @@ const mockSignInWithPassword = vi.fn();
 const mockSignOut = vi.fn();
 const mockResetPasswordForEmail = vi.fn();
 const mockUpdateUser = vi.fn();
+const mockStaffGetByUserId = vi.fn();
+const mockBusinessGetById = vi.fn();
 
 vi.mock('@/config/supabaseClient', () => ({
 	supabase: {
@@ -23,12 +25,30 @@ vi.mock('@/config/supabaseClient', () => ({
 	},
 }));
 
+vi.mock('@/services/staffService', () => ({
+	staffService: {
+		getByUserId: (...args: unknown[]) => mockStaffGetByUserId(...args),
+	},
+}));
+
+vi.mock('@/services/businessService', () => ({
+	businessService: {
+		getById: (...args: unknown[]) => mockBusinessGetById(...args),
+	},
+}));
+
 function Consumer() {
-	const { user, loading } = useAuth();
+	const { user, staff, business, loading } = useAuth();
 	if (loading) {
 		return <div>loading</div>;
 	}
-	return <div>{user ? `user:${user.id}` : 'user:none'}</div>;
+	return (
+		<div>
+			<div data-testid="user">{user ? `user:${user.id}` : 'user:none'}</div>
+			<div data-testid="staff">{staff ? `staff:${staff.id}` : 'staff:none'}</div>
+			<div data-testid="business">{business ? `business:${business.id}` : 'business:none'}</div>
+		</div>
+	);
 }
 
 function Harness({ onReady }: { onReady: (context: ReturnType<typeof useAuth>) => void }) {
@@ -42,6 +62,7 @@ function Harness({ onReady }: { onReady: (context: ReturnType<typeof useAuth>) =
 
 describe('AuthContext', () => {
 	beforeEach(() => {
+		vi.clearAllMocks();
 		mockGetSession.mockResolvedValue({ data: { session: null } });
 		mockOnAuthStateChange.mockReturnValue({
 			data: { subscription: { unsubscribe: vi.fn() } },
@@ -50,6 +71,8 @@ describe('AuthContext', () => {
 		mockSignOut.mockResolvedValue(undefined);
 		mockResetPasswordForEmail.mockResolvedValue({ error: null });
 		mockUpdateUser.mockResolvedValue({ error: null });
+		mockStaffGetByUserId.mockResolvedValue(null);
+		mockBusinessGetById.mockResolvedValue(null);
 	});
 
 	it('throws when useAuth is used outside provider', () => {
@@ -61,10 +84,15 @@ describe('AuthContext', () => {
 		expect(() => render(<ConsoleUser />)).toThrow('useAuth must be used within an AuthProvider');
 	});
 
-	it('loads the initial session and exposes user state', async () => {
+	it('loads the initial session and exposes user, staff, and business state', async () => {
+		const mockStaff = { id: 'staff-1', business_id: 'biz-1' };
+		const mockBusiness = { id: 'biz-1', name: 'Cool Salon' };
+
 		mockGetSession.mockResolvedValue({
 			data: { session: { user: { id: 'abc' } } },
 		});
+		mockStaffGetByUserId.mockResolvedValue(mockStaff);
+		mockBusinessGetById.mockResolvedValue(mockBusiness);
 
 		render(
 			<AuthProvider>
@@ -75,8 +103,13 @@ describe('AuthContext', () => {
 		expect(screen.getByText('loading')).toBeInTheDocument();
 
 		await waitFor(() => {
-			expect(screen.getByText('user:abc')).toBeInTheDocument();
+			expect(screen.getByTestId('user')).toHaveTextContent('user:abc');
+			expect(screen.getByTestId('staff')).toHaveTextContent('staff:staff-1');
+			expect(screen.getByTestId('business')).toHaveTextContent('business:biz-1');
 		});
+
+		expect(mockStaffGetByUserId).toHaveBeenCalledWith('abc');
+		expect(mockBusinessGetById).toHaveBeenCalledWith('biz-1');
 	});
 
 	it('unsubscribes from auth changes on unmount', () => {
