@@ -15,7 +15,7 @@ export function AuthLayout() {
 				<header className="flex items-center justify-between">
 					<Link to="/" className="flex items-center gap-2 text-lg font-semibold">
 						<span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold">
-              B
+							B
 						</span>
 						<div className="leading-tight">
 							<div>Boka Businesses</div>
