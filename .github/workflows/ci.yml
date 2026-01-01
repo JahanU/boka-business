@@ -64,6 +64,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
+          const path = require('path');
           const lintExit = Number(process.env.LINT_EXIT || 1);
           const typeExit = Number(process.env.TYPECHECK_EXIT || 1);
           const testExit = Number(process.env.TEST_EXIT || 1);
@@ -120,12 +121,13 @@ jobs:
             const testResults = report.testResults || [];
             if (testResults.length) {
               const suiteLines = testResults.map((suite) => {
-                const suiteName = suite.name || suite.file || 'unknown';
+                const suiteName = path.basename(suite.name || suite.file || 'unknown');
                 const assertions = suite.assertionResults || [];
                 const passed = assertions.filter((t) => t.status === 'passed').length;
                 const failed = assertions.filter((t) => t.status === 'failed').length;
                 const total = assertions.length;
-                const duration = suite.duration != null ? `${suite.duration}ms` : 'n/a';
+                const durationMs = suite.duration ?? suite.durationMs ?? suite.result?.duration;
+                const duration = durationMs != null ? `${durationMs}ms` : 'n/a';
                 return `  - ${suiteName}: ${total} tests (${passed} passed, ${failed} failed, ${duration})`;
               });
               suiteSummary = ['','**Vitest Suites**', ...suiteLines].join('\n');
