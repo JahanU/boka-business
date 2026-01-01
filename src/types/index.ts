@@ -43,7 +43,7 @@ export interface StaffAvailability {
     id: string;
     staff_id: string;
     availability_type: AvailabilityType;
-    day_of_week?: number; // 0-6 for Sunday-Saturday
+    day_of_week?: number; // 0-6 for Monday-Sunday
     specific_date?: string; // ISO date string (Start date)
     end_date?: string; // ISO date string (End date)
     start_time?: string; // HH:MM format
@@ -68,7 +68,7 @@ export interface AvailabilityFormData {
 
 export interface WeeklySchedule {
     [key: number]: {
-        // key is day_of_week (0-6)
+        // key is day_of_week (0-6 for Monday-Sunday)
         enabled: boolean;
         start_time: string;
         end_time: string;
@@ -76,14 +76,6 @@ export interface WeeklySchedule {
 }
 
 // Helper type for day names
-export const DAY_NAMES = [
-	'Sunday',
-	'Monday',
-	'Tuesday',
-	'Wednesday',
-	'Thursday',
-	'Friday',
-	'Saturday',
-] as const;
+export const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const;
 
 export type DayName = (typeof DAY_NAMES)[number];
