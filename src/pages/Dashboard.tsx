@@ -64,7 +64,7 @@ export default function DashboardPage() {
 		<div className="space-y-10">
 			<div className="space-y-2 rounded-2xl border border-border bg-card p-8 shadow-lg">
 				<p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Staff dashboard</p>
-				<h1 className="text-4xl font-semibold text-foreground">Ali's Barber</h1>
+				<h1 className="text-4xl font-semibold text-foreground">Ali's Barber </h1>
 				<p className="text-base text-muted-foreground">
 					Tailor each shift with the context your staff needs. Use the tabs below to cycle through
 					booking highlights, payments, and team notes.
