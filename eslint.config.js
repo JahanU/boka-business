@@ -59,7 +59,7 @@ export default defineConfig([
       // Disable React Refresh component export rule if needed (set to 'off' here)
       'react-refresh/only-export-components': 'off',
       semi: ['error', 'always'],
-      indent: ['error', 'tab'],
+      // indent: ['error', 'tab'],
     },
   },
 ]);

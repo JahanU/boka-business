@@ -75,7 +75,7 @@ export default function DashboardPage() {
 						<Button
 							key={tab.id}
 							size="sm"
-							variant={activeTab === tab.id ? "primary" : "secondary"}
+							variant={activeTab === tab.id ? "default" : "secondary"}
 							className="transition"
 							onClick={() => setActiveTab(tab.id)}
 						>
