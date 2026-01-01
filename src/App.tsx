@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
+import BookingsPage from '@/pages/Bookings';
+import SettingsPage from '@/pages/Settings';
 import DashboardPage from '@/pages/Dashboard';
 import HomePage from '@/pages/Home';
 import LoginPage from '@/pages/Login';
@@ -19,15 +21,16 @@ function App() {
 						<Route path="/reset-password" element={<ResetPasswordPage />} />
 					</Route>
 
-					<Route element={<DashboardLayout />}>
-						<Route
-							path="/dashboard"
-							element={
-								<ProtectedRoute>
-									<DashboardPage />
-								</ProtectedRoute>
-							}
-						/>
+					<Route
+						element={
+							<ProtectedRoute>
+								<DashboardLayout />
+							</ProtectedRoute>
+						}
+					>
+						<Route path="/dashboard" element={<DashboardPage />} />
+						<Route path="/bookings" element={<BookingsPage />} />
+						<Route path="/settings" element={<SettingsPage />} />
 					</Route>
 				</Routes>
 			</Router>
