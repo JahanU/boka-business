@@ -1,22 +1,41 @@
 {
   "compilerOptions": {
+    /* Environment & Language */
     "target": "ESNext",
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
     "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "jsx": "react-jsx", // Required for .tsx files (New JSX transform)
+    /* Module Resolution */
     "module": "ESNext",
-    "skipLibCheck": true,
     "moduleResolution": "Bundler",
-    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "strict": true,
-    "types": ["vitest/globals", "vite/client"],
+    "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    /* Type Checking */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    /* Output & Emit */
+    "noEmit": true,
+    /* Vite & Test Integration */
+    "types": [
+      "vitest/globals",
+      "vite/client"
+    ]
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }
