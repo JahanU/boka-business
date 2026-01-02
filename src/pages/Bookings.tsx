@@ -98,6 +98,12 @@ export default function BookingsPage() {
 												<Scissors className="h-4 w-4" />
 												{booking.service_name || 'Standard Service'}
 											</div>
+											<div className="text-sm font-bold text-foreground">
+												${Number(booking.service_price).toFixed(2)}
+											</div>
+											<Badge variant={booking.payment_status === 'paid_online' ? 'info' : 'secondary'} className="text-[10px] h-5 uppercase">
+												{booking.payment_status?.replace('_', ' ')}
+											</Badge>
 										</div>
 
 										<div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6">
