@@ -127,7 +127,7 @@ export function WeeklySchedule({ staffId, availability, onUpdate, loading }: Wee
 
 	if (loading) {
 		return (
-			<div className="flex items-center justify-center py-8">
+			<div className="flex items-center justify-center py-8" role="status">
 				<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
 			</div>
 		);

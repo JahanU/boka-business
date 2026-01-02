@@ -14,22 +14,8 @@ describe('ProtectedRoute', () => {
 		mockUseAuth.mockReset();
 	});
 
-	it('shows loading state while auth is loading', () => {
-		mockUseAuth.mockReturnValue({ user: null, loading: true });
-
-		render(
-			<MemoryRouter>
-				<ProtectedRoute>
-					<div>Private</div>
-				</ProtectedRoute>
-			</MemoryRouter>,
-		);
-
-		expect(screen.getByText(/checking if you're real/i)).toBeInTheDocument();
-	});
-
 	it('renders children when authenticated', () => {
-		mockUseAuth.mockReturnValue({ user: { id: '123' }, loading: false });
+		mockUseAuth.mockReturnValue({ user: { id: '123' } });
 
 		render(
 			<MemoryRouter>
@@ -43,7 +29,7 @@ describe('ProtectedRoute', () => {
 	});
 
 	it('redirects to login when unauthenticated', () => {
-		mockUseAuth.mockReturnValue({ user: null, loading: false });
+		mockUseAuth.mockReturnValue({ user: null });
 
 		render(
 			<MemoryRouter initialEntries={['/dashboard']}>

@@ -64,7 +64,7 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 
 	if (loading) {
 		return (
-			<div className="flex items-center justify-center py-8">
+			<div className="flex items-center justify-center py-8" role="status">
 				<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
 			</div>
 		);
@@ -158,7 +158,7 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 					</div>
 
 					<div className="flex gap-2 pt-2">
-						<Button onClick={handleAdd} disabled={saving || !dateRange?.from} className="flex-1 h-11 rounded-lg">
+						<Button onClick={handleAdd} disabled={saving} className="flex-1 h-11 rounded-lg">
 							{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
 							Save Leave
 						</Button>
