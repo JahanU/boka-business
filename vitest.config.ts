@@ -27,6 +27,9 @@ export default defineConfig({
         'src/vite-env.d.ts',
         'src/components/ui/**', // shadcn components
         'src/services/**', // supabase queries
+        'src/config/**',
+        'dist/**',
+        '*.config.{js,ts}',
       ],
     },
   },
