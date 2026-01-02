@@ -27,7 +27,10 @@ export interface Appointment {
     customer_name?: string;
     customer_email?: string;
     customer_phone?: string;
-    service_name?: string;
+    service_id: string;
+    service_name: string;
+    service_price: number;
+    payment_status: 'paid_online' | 'pay_in_store';
     appointment_date: string;
     appointment_time: string;
     duration_minutes: number;
