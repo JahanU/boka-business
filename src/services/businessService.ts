@@ -16,35 +16,4 @@ export const businessService = {
 
 		return data;
 	},
-
-	async create(business: Omit<Business, 'id' | 'created_at' | 'updated_at'>): Promise<Business | null> {
-		const { data, error } = await supabase
-			.from('businesses')
-			.insert(business)
-			.select()
-			.single();
-
-		if (error) {
-			console.error('Error creating business:', error);
-			return null;
-		}
-
-		return data;
-	},
-
-	async update(id: string, updates: Partial<Business>): Promise<Business | null> {
-		const { data, error } = await supabase
-			.from('businesses')
-			.update(updates)
-			.eq('id', id)
-			.select()
-			.single();
-
-		if (error) {
-			console.error('Error updating business:', error);
-			return null;
-		}
-
-		return data;
-	},
 };

@@ -18,23 +18,6 @@ export const availabilityService = {
 		return data || [];
 	},
 
-	async getByType(staffId: string, type: string): Promise<StaffAvailability[]> {
-		const { data, error } = await supabase
-			.from('staff_availability')
-			.select('*')
-			.eq('staff_id', staffId)
-			.eq('availability_type', type)
-			.order('day_of_week', { ascending: true })
-			.order('start_time', { ascending: true });
-
-		if (error) {
-			console.error('Error fetching availability by type:', error);
-			return [];
-		}
-
-		return data || [];
-	},
-
 	async create(staffId: string, formData: AvailabilityFormData): Promise<StaffAvailability | null> {
 		const { data, error } = await supabase
 			.from('staff_availability')
@@ -118,7 +101,7 @@ export const availabilityService = {
 
 		// Only check working_hours conflicts if times are provided
 		if (startTime && endTime) {
-			const hasConflict = data?.some((existing) => {
+			const hasConflict = data?.some((existing: StaffAvailability) => {
 				if (existing.availability_type !== 'working_hours') return false;
 
 				const existingStart = existing.start_time;

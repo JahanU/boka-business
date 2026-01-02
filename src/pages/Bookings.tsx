@@ -8,6 +8,13 @@ import { Loader2, Calendar, Clock, User, Phone, Mail, Trash2, Scissors } from "l
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 
+const STATUS_VARIANTS: Record<Appointment['status'], string> = {
+	confirmed: 'success',
+	pending: 'warning',
+	cancelled: 'destructive',
+	completed: 'info',
+};
+
 export default function BookingsPage() {
 	const { business } = useAuth();
 	const [bookings, setBookings] = useState<Appointment[]>([]);
@@ -27,16 +34,6 @@ export default function BookingsPage() {
 
 		fetchBookings();
 	}, [business?.id]);
-
-	const getStatusVariant = (status: Appointment['status']) => {
-		switch (status) {
-			case 'confirmed': return 'success';
-			case 'pending': return 'warning';
-			case 'cancelled': return 'destructive';
-			case 'completed': return 'info';
-			default: return 'secondary';
-		}
-	};
 
 	const handleDelete = async (id: string) => {
 		if (!confirm('Are you sure you want to delete this booking?')) return;
@@ -91,7 +88,7 @@ export default function BookingsPage() {
 								>
 									<div className="space-y-3 flex-1">
 										<div className="flex items-center gap-3">
-											<Badge variant={getStatusVariant(booking.status)} className="capitalize font-medium">
+											<Badge variant={STATUS_VARIANTS[booking.status] as "success" | "warning" | "destructive" | "info"} className="capitalize font-medium">
 												{booking.status}
 											</Badge>
 											<div className="flex items-center gap-1.5 text-sm font-semibold text-primary">

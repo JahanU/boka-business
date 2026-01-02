@@ -66,16 +66,5 @@ export interface AvailabilityFormData {
     notes?: string;
 }
 
-export interface WeeklySchedule {
-    [key: number]: {
-        // key is day_of_week (0-6 for Monday-Sunday)
-        enabled: boolean;
-        start_time: string;
-        end_time: string;
-    };
-}
-
 // Helper type for day names
 export const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const;
-
-export type DayName = (typeof DAY_NAMES)[number];
