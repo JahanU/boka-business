@@ -13,5 +13,21 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
     globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage',
+      exclude: [
+        'node_modules/',
+        'src/setupTests.ts',
+        '**/*.d.ts',
+        '**/*.test.{ts,tsx}',
+        '**/types/**',
+        'src/main.tsx',
+        'src/vite-env.d.ts',
+        'src/components/ui/**', // shadcn components
+        'src/services/**', // supabase queries
+      ],
+    },
   },
 })
