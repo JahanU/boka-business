@@ -66,4 +66,17 @@ describe('App Component', () => {
             expect(screen.getByText(/Staff dashboard/i)).toBeInTheDocument();
         });
     });
+
+    it('redirects to login page when not authenticated', async () => {
+        mockGetSession.mockResolvedValue({
+            data: { session: null },
+        });
+
+        window.history.pushState({}, 'Dashboard', '/dashboard');
+        render(<App />);
+
+        await waitFor(() => {
+            expect(screen.getByPlaceholderText(/you@barbershop.com/i)).toBeInTheDocument();
+        });
+    });
 });
