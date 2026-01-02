@@ -24,10 +24,8 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 
 	const handleAdd = async () => {
 		if (!dateRange?.from) {
-			alert('Please select a date range');
 			return;
 		}
-
 		setSaving(true);
 
 		try {
@@ -158,7 +156,7 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 					</div>
 
 					<div className="flex gap-2 pt-2">
-						<Button onClick={handleAdd} disabled={saving} className="flex-1 h-11 rounded-lg">
+						<Button onClick={handleAdd} disabled={saving || !dateRange?.from} className="flex-1 h-11 rounded-lg">
 							{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
 							Save Leave
 						</Button>

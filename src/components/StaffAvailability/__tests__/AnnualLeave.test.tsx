@@ -102,14 +102,26 @@ describe('AnnualLeave', () => {
 		expect(screen.getByRole('button', { name: /pick a date range/i })).toBeInTheDocument();
 	});
 
-	it('shows save and cancel buttons in add form', async () => {
+	it('Save Leave Button should be disabled until date is selected', async () => {
 		const user = userEvent.setup();
 
 		render(<AnnualLeave {...defaultProps} />);
 
 		await user.click(screen.getByRole('button', { name: /add annual leave range/i }));
 
-		expect(screen.getByRole('button', { name: /save leave/i })).toBeInTheDocument();
+		const saveButton = screen.getByRole('button', { name: /save leave/i });
+		expect(saveButton).toBeDisabled();
+
+		// Open date picker
+		await user.click(screen.getByRole('button', { name: /pick a date range/i }));
+
+		// Select a date (e.g., the 15th of the current month)
+		const day15 = screen.getAllByRole('button').find(btn => btn.textContent === '15');
+		if (day15) {
+			await user.click(day15);
+		}
+
+		expect(saveButton).toBeEnabled();
 		expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
 	});
 
@@ -125,19 +137,6 @@ describe('AnnualLeave', () => {
 
 		expect(screen.queryByText('Select Leave Dates')).not.toBeInTheDocument();
 		expect(screen.getByRole('button', { name: /add annual leave range/i })).toBeInTheDocument();
-	});
-
-	it('shows alert when trying to save without selecting dates', async () => {
-		const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
-		const user = userEvent.setup();
-
-		render(<AnnualLeave {...defaultProps} />);
-
-		await user.click(screen.getByRole('button', { name: /add annual leave range/i }));
-		await user.click(screen.getByRole('button', { name: /save leave/i }));
-
-		expect(alertSpy).toHaveBeenCalledWith('Please select a date range');
-		alertSpy.mockRestore();
 	});
 
 	it('renders delete button for each leave entry', () => {
@@ -198,7 +197,7 @@ describe('AnnualLeave', () => {
 	it('shows alert when delete fails', async () => {
 		mockDelete.mockResolvedValue(false);
 		const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-		const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+		const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => { });
 		const user = userEvent.setup();
 
 		render(<AnnualLeave {...defaultProps} availability={mockLeaveEntries} />);
