@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import { StaffAvailability } from '../StaffAvailability';
 
@@ -58,15 +58,21 @@ describe('StaffAvailability', () => {
 		expect(
 			screen.getByText('Set your recurring weekly schedule and one-time leave periods.')
 		).toBeInTheDocument();
+
+		// Wait for loading to finish to avoid act() warnings
+		await screen.findByText('WeeklySchedule Mock');
 	});
 
-	it('renders tabs for Weekly Schedule and Annual Leave', () => {
+	it('renders tabs for Weekly Schedule and Annual Leave', async () => {
 		mockUseAuth.mockReturnValue({ staff: { id: 'staff-123' } });
 
 		render(<StaffAvailability />);
 
 		expect(screen.getByRole('tab', { name: /weekly schedule/i })).toBeInTheDocument();
 		expect(screen.getByRole('tab', { name: /annual leave/i })).toBeInTheDocument();
+
+		// Wait for loading to finish to avoid act() warnings
+		await screen.findByText('WeeklySchedule Mock');
 	});
 
 	it('calls availabilityService.getByStaffId on mount', async () => {
@@ -74,7 +80,9 @@ describe('StaffAvailability', () => {
 
 		render(<StaffAvailability />);
 
-		expect(mockGetByStaffId).toHaveBeenCalledWith('staff-123');
+		await waitFor(() => {
+			expect(mockGetByStaffId).toHaveBeenCalledWith('staff-123');
+		});
 	});
 
 	it('passes staffId to child components', async () => {
