@@ -52,15 +52,15 @@ describe('DashboardLayout', () => {
 	it('renders navigation links', () => {
 		renderWithRouter();
 
-		expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument();
-		expect(screen.getByRole('link', { name: /bookings/i })).toBeInTheDocument();
-		expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();
+		expect(screen.getAllByRole('link', { name: /dashboard/i })).toHaveLength(2);
+		expect(screen.getAllByRole('link', { name: /bookings/i })).toHaveLength(2);
+		expect(screen.getAllByRole('link', { name: /settings/i })).toHaveLength(2);
 	});
 
 	it('renders the logout button', () => {
 		renderWithRouter();
 
-		expect(screen.getByRole('button', { name: /logout/i })).toBeInTheDocument();
+		expect(screen.getAllByRole('button', { name: /logout/i })).toHaveLength(2);
 	});
 
 	it('renders outlet content', () => {
@@ -73,7 +73,8 @@ describe('DashboardLayout', () => {
 		const user = userEvent.setup();
 		renderWithRouter('/dashboard');
 
-		await user.click(screen.getByRole('link', { name: /bookings/i }));
+		const bookingsLinks = screen.getAllByRole('link', { name: /bookings/i });
+		await user.click(bookingsLinks[0]);
 
 		expect(screen.getByText('Bookings Content')).toBeInTheDocument();
 	});
@@ -81,16 +82,18 @@ describe('DashboardLayout', () => {
 	it('highlights the active navigation link', () => {
 		renderWithRouter('/dashboard');
 
-		const dashboardLink = screen.getByRole('link', { name: /dashboard/i });
-		// Active link should have specific styling classes
-		expect(dashboardLink).toHaveClass('text-primary');
+		const dashboardLinks = screen.getAllByRole('link', { name: /dashboard/i });
+		dashboardLinks.forEach(link => {
+			expect(link).toHaveClass('text-primary');
+		});
 	});
 
 	it('calls signOut and navigates to home on logout click', async () => {
 		const user = userEvent.setup();
 		renderWithRouter();
 
-		await user.click(screen.getByRole('button', { name: /logout/i }));
+		const logoutButtons = screen.getAllByRole('button', { name: /logout/i });
+		await user.click(logoutButtons[0]);
 
 		await waitFor(() => {
 			expect(mockSignOut).toHaveBeenCalled();
@@ -125,7 +128,8 @@ describe('DashboardLayout', () => {
 		const user = userEvent.setup();
 		renderWithRouter('/dashboard');
 
-		await user.click(screen.getByRole('link', { name: /settings/i }));
+		const settingsLinks = screen.getAllByRole('link', { name: /settings/i });
+		await user.click(settingsLinks[0]);
 
 		expect(screen.getByText('Settings Content')).toBeInTheDocument();
 	});
