@@ -1,6 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DashboardPage from '../Dashboard';
+import { vi } from 'vitest';
+
+// Mock useAuth
+vi.mock('@/contexts/AuthContext', () => ({
+	useAuth: vi.fn(() => ({
+		business: { name: "ali's_barber" },
+		loading: false,
+	})),
+}));
 
 describe('DashboardPage', () => {
 	it('renders the staff dashboard header', () => {

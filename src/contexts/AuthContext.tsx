@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../config/supabaseClient';
 import { staffService } from '@/services/staffService';
-import { businessService } from '@/services/businessService';
 import type { Staff, Business } from '@/types';
 
 interface AuthContextType {
@@ -29,11 +28,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	// Fetch staff and business data when user is authenticated
 	const fetchStaffAndBusiness = async (userId: string) => {
 		const staffData = await staffService.getByUserId(userId);
-		setStaff(staffData);
-
-		if (staffData?.business_id) {
-			const businessData = await businessService.getById(staffData.business_id);
-			setBusiness(businessData);
+		if (staffData) {
+			setStaff(staffData);
+			if (staffData.businesses) {
+				setBusiness(staffData.businesses);
+			}
 		}
 	};
 
@@ -75,10 +74,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	}, []);
 
 	const signIn = async (email: string, password: string) => {
-		const { error } = await supabase.auth.signInWithPassword({
+		const { data, error } = await supabase.auth.signInWithPassword({
 			email: email.trim(),
 			password,
 		});
+
+		if (data?.user) {
+			// Trigger fetch immediately to eliminate delay
+			fetchStaffAndBusiness(data.user.id);
+		}
+
 		return { error };
 	};
 

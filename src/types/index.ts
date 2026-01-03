@@ -18,6 +18,7 @@ export interface Staff {
     role: 'owner' | 'staff' | 'admin';
     created_at: string;
     updated_at: string;
+    businesses?: Business;
 }
 
 export interface Appointment {
