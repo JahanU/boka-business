@@ -2,9 +2,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import BookingsPage from '../Bookings';
+import { Appointment } from '@/types';
 
 const mockUseAuth = vi.fn();
 const mockGetByBusinessId = vi.fn();
+const mockCancel = vi.fn();
 const mockDelete = vi.fn();
 
 vi.mock('@/contexts/AuthContext', () => ({
@@ -14,11 +16,12 @@ vi.mock('@/contexts/AuthContext', () => ({
 vi.mock('@/services/appointmentService', () => ({
 	appointmentService: {
 		getByBusinessId: (...args: unknown[]) => mockGetByBusinessId(...args),
+		cancel: (...args: unknown[]) => mockCancel(...args),
 		delete: (...args: unknown[]) => mockDelete(...args),
 	},
 }));
 
-const mockBookings = [
+const mockBookings: Appointment[] = [
 	{
 		id: 'booking-1',
 		business_id: 'biz-123',
@@ -26,7 +29,10 @@ const mockBookings = [
 		customer_name: 'John Doe',
 		customer_email: 'john@example.com',
 		customer_phone: '555-1234',
+		service_id: 'ser-1',
 		service_name: 'Haircut',
+		service_price: 30,
+		payment_status: 'paid_online' as const,
 		appointment_date: '2026-01-15',
 		appointment_time: '10:00:00',
 		duration_minutes: 30,
@@ -41,8 +47,11 @@ const mockBookings = [
 		staff_id: 'staff-1',
 		customer_name: 'Jane Smith',
 		customer_email: 'jane@example.com',
-		customer_phone: null,
+		customer_phone: '123123123',
+		service_id: 'ser-2',
 		service_name: 'Beard Trim',
+		service_price: 20,
+		payment_status: 'pay_in_store' as const,
 		appointment_date: '2026-01-16',
 		appointment_time: '14:30:00',
 		duration_minutes: 20,
@@ -57,12 +66,13 @@ describe('BookingsPage', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		mockGetByBusinessId.mockResolvedValue([]);
+		mockCancel.mockResolvedValue(true);
 		mockDelete.mockResolvedValue(true);
 	});
 
 	it('shows loading state initially', () => {
 		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
-		mockGetByBusinessId.mockImplementation(() => new Promise(() => {})); // Never resolves
+		mockGetByBusinessId.mockImplementation(() => new Promise(() => { })); // Never resolves
 
 		render(<BookingsPage />);
 
@@ -116,6 +126,12 @@ describe('BookingsPage', () => {
 			expect(screen.getByText('John Doe')).toBeInTheDocument();
 		});
 		expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+
+		// Assert on price and payment status
+		expect(screen.getByText('£30.00')).toBeInTheDocument();
+		expect(screen.getByText('£20.00')).toBeInTheDocument();
+		expect(screen.getByText(/paid online/i)).toBeInTheDocument();
+		expect(screen.getByText(/pay in store/i)).toBeInTheDocument();
 	});
 
 	it('displays service name for each booking', async () => {
@@ -210,7 +226,7 @@ describe('BookingsPage', () => {
 
 		await waitFor(() => {
 			expect(confirmSpy).toHaveBeenCalled();
-			expect(mockDelete).toHaveBeenCalledWith('booking-1');
+			expect(mockCancel).toHaveBeenCalledWith(mockBookings[0]);
 		});
 
 		confirmSpy.mockRestore();
@@ -249,9 +265,9 @@ describe('BookingsPage', () => {
 	it('shows alert when delete fails', async () => {
 		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
 		mockGetByBusinessId.mockResolvedValue(mockBookings);
-		mockDelete.mockResolvedValue(false);
+		mockCancel.mockResolvedValue(false);
 		const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-		const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+		const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => { });
 		const user = userEvent.setup();
 
 		render(<BookingsPage />);
@@ -298,7 +314,7 @@ describe('BookingsPage', () => {
 			await user.click(trashButton);
 		}
 
-		expect(mockDelete).not.toHaveBeenCalled();
+		expect(mockCancel).not.toHaveBeenCalled();
 		confirmSpy.mockRestore();
 	});
 });

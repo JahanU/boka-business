@@ -99,10 +99,10 @@ export default function BookingsPage() {
 												{booking.service_name || 'Standard Service'}
 											</div>
 											<div className="text-sm font-bold text-foreground">
-												${Number(booking.service_price).toFixed(2)}
+												£{Number(booking.service_price).toFixed(2)}
 											</div>
 											<Badge variant={booking.payment_status === 'paid_online' ? 'info' : 'secondary'} className="text-[10px] h-5 uppercase">
-												{booking.payment_status?.replace('_', ' ')}
+												{booking.payment_status?.replaceAll('_', ' ')}
 											</Badge>
 										</div>
 
