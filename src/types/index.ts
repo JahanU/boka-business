@@ -36,6 +36,7 @@ export interface Appointment {
     duration_minutes: number;
     status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
     notes?: string;
+    google_event_id?: string;
     created_at: string;
     updated_at: string;
 }

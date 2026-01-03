@@ -38,12 +38,12 @@ export default function BookingsPage() {
 		}
 	};
 
-	const handleDelete = async (id: string) => {
+	const handleDelete = async (appointment: Appointment) => {
 		if (!confirm('Are you sure you want to delete this booking?')) return;
 
-		const success = await appointmentService.delete(id);
+		const success = await appointmentService.cancel(appointment);
 		if (success) {
-			setBookings(prev => prev.filter(b => b.id !== id));
+			setBookings(prev => prev.filter(b => b.id !== appointment.id));
 		} else {
 			alert('Failed to delete booking. Please try again.');
 		}
@@ -99,10 +99,10 @@ export default function BookingsPage() {
 												{booking.service_name || 'Standard Service'}
 											</div>
 											<div className="text-sm font-bold text-foreground">
-												${Number(booking.service_price).toFixed(2)}
+												£{Number(booking.service_price).toFixed(2)}
 											</div>
 											<Badge variant={booking.payment_status === 'paid_online' ? 'info' : 'secondary'} className="text-[10px] h-5 uppercase">
-												{booking.payment_status?.replace('_', ' ')}
+												{booking.payment_status?.replaceAll('_', ' ')}
 											</Badge>
 										</div>
 
@@ -149,7 +149,7 @@ export default function BookingsPage() {
 										<Button
 											variant="ghost"
 											size="icon"
-											onClick={() => handleDelete(booking.id)}
+											onClick={() => handleDelete(booking)}
 											className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full h-9 w-9"
 										>
 											<Trash2 className="h-4 w-4" />
