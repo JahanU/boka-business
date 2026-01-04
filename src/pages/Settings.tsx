@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+// import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { StaffAvailability } from "@/components/StaffAvailability/StaffAvailability";
 
 export default function SettingsPage() {
@@ -9,7 +9,7 @@ export default function SettingsPage() {
 				<p className="text-muted-foreground">Manage your business profile and preferences.</p>
 			</div>
 
-			<Card>
+			{/* <Card>
 				<CardHeader>
 					<CardTitle>Business Information</CardTitle>
 					<CardDescription>Update your public profile and contact details.</CardDescription>
@@ -19,7 +19,7 @@ export default function SettingsPage() {
 						Settings configuration will be available here.
 					</div>
 				</CardContent>
-			</Card>
+			</Card> */}
 			<StaffAvailability />
 		</div>
 	);

@@ -1,11 +1,11 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Settings, LogOut } from 'lucide-react';
+import { Calendar, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const navigationLinks = [
-	{ href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+	// { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
 	{ href: '/bookings', label: 'Bookings', icon: Calendar },
 	{ href: '/settings', label: 'Settings', icon: Settings },
 ];
@@ -39,7 +39,7 @@ export function DashboardLayout() {
 								<NavLink
 									key={href}
 									to={href}
-									end={href === '/dashboard'}
+									end={href === '/bookings'}
 									className={({ isActive }) =>
 										cn(
 											'flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors',
@@ -89,7 +89,7 @@ export function DashboardLayout() {
 							<NavLink
 								key={href}
 								to={href}
-								end={href === '/dashboard'}
+								end={href === '/bookings'}
 								className={({ isActive }) =>
 									cn(
 										'flex flex-col items-center justify-center gap-1 px-3 py-2 min-w-[64px] rounded-lg transition-colors',
