@@ -33,7 +33,7 @@ vi.mock('@/services/staffService', () => ({
 
 vi.mock('@/services/businessService', () => ({
 	businessService: {
-		getById: (...args: unknown[]) => mockBusinessGetById(...args),
+		getById: vi.fn(),
 	},
 }));
 
@@ -85,14 +85,13 @@ describe('AuthContext', () => {
 	});
 
 	it('loads the initial session and exposes user, staff, and business state', async () => {
-		const mockStaff = { id: 'staff-1', business_id: 'biz-1' };
 		const mockBusiness = { id: 'biz-1', name: 'Cool Salon' };
+		const mockStaff = { id: 'staff-1', business_id: 'biz-1', businesses: mockBusiness };
 
 		mockGetSession.mockResolvedValue({
 			data: { session: { user: { id: 'abc' } } },
 		});
 		mockStaffGetByUserId.mockResolvedValue(mockStaff);
-		mockBusinessGetById.mockResolvedValue(mockBusiness);
 
 		render(
 			<AuthProvider>
@@ -109,7 +108,6 @@ describe('AuthContext', () => {
 		});
 
 		expect(mockStaffGetByUserId).toHaveBeenCalledWith('abc');
-		expect(mockBusinessGetById).toHaveBeenCalledWith('biz-1');
 	});
 
 	it('unsubscribes from auth changes on unmount', () => {
