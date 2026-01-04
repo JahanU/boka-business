@@ -177,7 +177,7 @@ describe('BookingsPage', () => {
 		});
 	});
 
-	it('shows Read-only badge and no delete button for past appointments', async () => {
+	it('shows no delete button for past appointments', async () => {
 		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
 		mockGetByBusinessId.mockResolvedValue(mockBookings);
 		const user = userEvent.setup({ delay: null });
@@ -191,7 +191,6 @@ describe('BookingsPage', () => {
 		const pastTab = screen.getByRole('tab', { name: /past/i });
 		await user.click(pastTab);
 
-		expect(screen.getByText('Read-only')).toBeInTheDocument();
 		// The trash icon is inside a button, but there should be no buttons for past bookings now
 		const deleteButtons = screen.queryAllByRole('button').filter(
 			(btn) => btn.querySelector('svg')

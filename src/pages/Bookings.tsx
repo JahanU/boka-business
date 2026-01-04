@@ -166,7 +166,7 @@ export default function BookingsPage() {
 							</div>
 
 							<div className="flex items-center gap-2 md:pl-4 md:border-l md:border-muted/50">
-								{type === 'upcoming' ? (
+								{type === 'upcoming' && (
 									<Button
 										variant="ghost"
 										size="icon"
@@ -175,10 +175,6 @@ export default function BookingsPage() {
 									>
 										<Trash2 className="h-4 w-4" />
 									</Button>
-								) : (
-									<Badge variant="outline" className="text-[10px] font-normal text-muted-foreground">
-										Read-only
-									</Badge>
 								)}
 							</div>
 						</div>
