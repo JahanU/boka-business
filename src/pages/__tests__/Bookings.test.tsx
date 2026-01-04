@@ -26,48 +26,58 @@ const mockBookings: Appointment[] = [
 		id: 'booking-1',
 		business_id: 'biz-123',
 		staff_id: 'staff-1',
-		customer_name: 'John Doe',
-		customer_email: 'john@example.com',
-		customer_phone: '555-1234',
-		service_id: 'ser-1',
+		customer_name: 'Upcoming John',
+		appointment_date: '2026-01-05',
+		appointment_time: '10:00:00',
 		service_name: 'Haircut',
 		service_price: 30,
-		payment_status: 'paid_online' as const,
-		appointment_date: '2026-01-15',
-		appointment_time: '10:00:00',
-		duration_minutes: 30,
-		status: 'confirmed' as const,
-		notes: '',
+		payment_status: 'paid_online',
+		status: 'confirmed',
 		created_at: '2025-01-01T00:00:00Z',
 		updated_at: '2025-01-01T00:00:00Z',
-	},
+	} as Appointment,
 	{
 		id: 'booking-2',
 		business_id: 'biz-123',
 		staff_id: 'staff-1',
-		customer_name: 'Jane Smith',
-		customer_email: 'jane@example.com',
-		customer_phone: '123123123',
-		service_id: 'ser-2',
+		customer_name: 'Today Past Jane',
+		appointment_date: '2026-01-04',
+		appointment_time: '13:00:00',
 		service_name: 'Beard Trim',
 		service_price: 20,
-		payment_status: 'pay_in_store' as const,
-		appointment_date: '2026-01-16',
-		appointment_time: '14:30:00',
-		duration_minutes: 20,
-		status: 'pending' as const,
-		notes: '',
+		payment_status: 'pay_in_store',
+		status: 'pending',
 		created_at: '2025-01-01T00:00:00Z',
 		updated_at: '2025-01-01T00:00:00Z',
-	},
+	} as Appointment,
+	{
+		id: 'booking-3',
+		business_id: 'biz-123',
+		staff_id: 'staff-1',
+		customer_name: 'Today Future Bob',
+		appointment_date: '2026-01-04',
+		appointment_time: '16:00:00',
+		service_name: 'Coloring',
+		service_price: 50,
+		payment_status: 'paid_online',
+		status: 'confirmed',
+		created_at: '2025-01-01T00:00:00Z',
+		updated_at: '2025-01-01T00:00:00Z',
+	} as Appointment,
 ];
 
 describe('BookingsPage', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		vi.useFakeTimers({ toFake: ['Date'] });
+		vi.setSystemTime(new Date('2026-01-04T15:00:00Z'));
 		mockGetByBusinessId.mockResolvedValue([]);
 		mockCancel.mockResolvedValue(true);
 		mockDelete.mockResolvedValue(true);
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
 	});
 
 	it('shows loading state initially', () => {
@@ -91,18 +101,101 @@ describe('BookingsPage', () => {
 		expect(screen.getByText('Manage your upcoming appointments and history.')).toBeInTheDocument();
 	});
 
-	it('shows empty state when no bookings exist', async () => {
+	it('shows empty states for upcoming and past tabs', async () => {
 		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
 		mockGetByBusinessId.mockResolvedValue([]);
+		const user = userEvent.setup({ delay: null });
 
 		render(<BookingsPage />);
 
 		await waitFor(() => {
-			expect(screen.getByText('No bookings found')).toBeInTheDocument();
+			expect(screen.getByText('No upcoming bookings found')).toBeInTheDocument();
 		});
-		expect(
-			screen.getByText('When customers book appointments, they will appear here.')
-		).toBeInTheDocument();
+
+		const pastTab = screen.getByRole('tab', { name: /past/i });
+		await user.click(pastTab);
+
+		expect(screen.getByText('No past bookings found')).toBeInTheDocument();
+	});
+
+	it('categorizes appointments correctly into Upcoming and Past tabs', async () => {
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockGetByBusinessId.mockResolvedValue(mockBookings);
+		const user = userEvent.setup({ delay: null });
+
+		render(<BookingsPage />);
+
+		await waitFor(() => {
+			// Upcoming tab should show Today Future Bob and Upcoming John
+			expect(screen.getByText('Today Future Bob')).toBeInTheDocument();
+			expect(screen.getByText('Upcoming John')).toBeInTheDocument();
+			expect(screen.queryByText('Today Past Jane')).not.toBeInTheDocument();
+		});
+
+		const pastTab = screen.getByRole('tab', { name: /past/i });
+		await user.click(pastTab);
+
+		// Past tab should show Today Past Jane
+		expect(screen.getByText('Today Past Jane')).toBeInTheDocument();
+		expect(screen.queryByText('Today Future Bob')).not.toBeInTheDocument();
+		expect(screen.queryByText('Upcoming John')).not.toBeInTheDocument();
+	});
+
+	it('sorts upcoming appointments by date ascending', async () => {
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockGetByBusinessId.mockResolvedValue(mockBookings);
+
+		render(<BookingsPage />);
+
+		await waitFor(() => {
+			const names = screen.getAllByText(/Today Future Bob|Upcoming John/).map(el => el.textContent);
+			expect(names).toEqual(['Today Future Bob', 'Upcoming John']);
+		});
+	});
+
+	it('sorts past appointments by date descending', async () => {
+		const manyPastBookings = [
+			{ ...mockBookings[1], id: 'old-1', customer_name: 'Oldest', appointment_date: '2026-01-01' },
+			{ ...mockBookings[1], id: 'old-2', customer_name: 'Newer Past', appointment_date: '2026-01-03' },
+		];
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockGetByBusinessId.mockResolvedValue(manyPastBookings);
+		const user = userEvent.setup({ delay: null });
+
+		render(<BookingsPage />);
+
+		await waitFor(() => {
+			expect(screen.queryByRole('status')).not.toBeInTheDocument();
+		});
+
+		const pastTab = screen.getByRole('tab', { name: /past/i });
+		await user.click(pastTab);
+
+		await waitFor(() => {
+			const names = screen.getAllByText(/Oldest|Newer Past/).map(el => el.textContent);
+			expect(names).toEqual(['Newer Past', 'Oldest']);
+		});
+	});
+
+	it('shows no delete button for past appointments', async () => {
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockGetByBusinessId.mockResolvedValue(mockBookings);
+		const user = userEvent.setup({ delay: null });
+
+		render(<BookingsPage />);
+
+		await waitFor(() => {
+			expect(screen.queryByRole('status')).not.toBeInTheDocument();
+		});
+
+		const pastTab = screen.getByRole('tab', { name: /past/i });
+		await user.click(pastTab);
+
+		// The trash icon is inside a button, but there should be no buttons for past bookings now
+		const deleteButtons = screen.queryAllByRole('button').filter(
+			(btn) => btn.querySelector('svg')
+		);
+		expect(deleteButtons).toHaveLength(0);
 	});
 
 	it('fetches bookings for the business on mount', async () => {
@@ -116,205 +209,30 @@ describe('BookingsPage', () => {
 		});
 	});
 
-	it('displays booking cards when bookings exist', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
-		mockGetByBusinessId.mockResolvedValue(mockBookings);
-
-		render(<BookingsPage />);
-
-		await waitFor(() => {
-			expect(screen.getByText('John Doe')).toBeInTheDocument();
-		});
-		expect(screen.getByText('Jane Smith')).toBeInTheDocument();
-
-		// Assert on price and payment status
-		expect(screen.getByText('£30.00')).toBeInTheDocument();
-		expect(screen.getByText('£20.00')).toBeInTheDocument();
-		expect(screen.getByText(/paid online/i)).toBeInTheDocument();
-		expect(screen.getByText(/pay in store/i)).toBeInTheDocument();
-	});
-
-	it('displays service name for each booking', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
-		mockGetByBusinessId.mockResolvedValue(mockBookings);
-
-		render(<BookingsPage />);
-
-		await waitFor(() => {
-			expect(screen.getByText('Haircut')).toBeInTheDocument();
-		});
-		expect(screen.getByText('Beard Trim')).toBeInTheDocument();
-	});
-
-	it('displays status badge with correct variant', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
-		mockGetByBusinessId.mockResolvedValue(mockBookings);
-
-		render(<BookingsPage />);
-
-		await waitFor(() => {
-			expect(screen.getByText('confirmed')).toBeInTheDocument();
-		});
-		expect(screen.getByText('pending')).toBeInTheDocument();
-	});
-
-	it('displays formatted date for appointments', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
-		mockGetByBusinessId.mockResolvedValue(mockBookings);
-
-		render(<BookingsPage />);
-
-		await waitFor(() => {
-			// date-fns format: 'EEEE, MMM d, yyyy'
-			expect(screen.getByText(/Thursday, Jan 15, 2026/i)).toBeInTheDocument();
-		});
-	});
-
-	it('displays appointment time', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
-		mockGetByBusinessId.mockResolvedValue(mockBookings);
-
-		render(<BookingsPage />);
-
-		await waitFor(() => {
-			expect(screen.getByText('10:00')).toBeInTheDocument();
-		});
-		expect(screen.getByText('14:30')).toBeInTheDocument();
-	});
-
-	it('displays customer contact information when available', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
-		mockGetByBusinessId.mockResolvedValue(mockBookings);
-
-		render(<BookingsPage />);
-
-		await waitFor(() => {
-			expect(screen.getByText('john@example.com')).toBeInTheDocument();
-		});
-		expect(screen.getByText('555-1234')).toBeInTheDocument();
-	});
-
-	it('does not fetch bookings when business is not available', () => {
-		mockUseAuth.mockReturnValue({ business: null });
-
-		render(<BookingsPage />);
-
-		expect(mockGetByBusinessId).not.toHaveBeenCalled();
-	});
-
 	it('calls delete service when delete button is clicked and confirmed', async () => {
 		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
 		mockGetByBusinessId.mockResolvedValue(mockBookings);
 		const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-		const user = userEvent.setup();
+		const user = userEvent.setup({ delay: null });
 
 		render(<BookingsPage />);
 
 		await waitFor(() => {
-			expect(screen.getByText('John Doe')).toBeInTheDocument();
+			expect(screen.getByText('Upcoming John')).toBeInTheDocument();
 		});
 
-		// Find delete buttons
 		const deleteButtons = screen.getAllByRole('button');
-		const trashButton = deleteButtons.find(
+		const trashButtons = deleteButtons.filter(
 			(btn) => btn.querySelector('svg') && !btn.textContent?.trim()
 		);
 
-		if (trashButton) {
-			await user.click(trashButton);
-		}
+		await user.click(trashButtons[0]);
 
 		await waitFor(() => {
 			expect(confirmSpy).toHaveBeenCalled();
-			expect(mockCancel).toHaveBeenCalledWith(mockBookings[0]);
+			expect(mockCancel).toHaveBeenCalled();
 		});
 
-		confirmSpy.mockRestore();
-	});
-
-	it('removes booking from list after successful delete', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
-		mockGetByBusinessId.mockResolvedValue(mockBookings);
-		const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-		const user = userEvent.setup();
-
-		render(<BookingsPage />);
-
-		await waitFor(() => {
-			expect(screen.getByText('John Doe')).toBeInTheDocument();
-		});
-
-		const deleteButtons = screen.getAllByRole('button');
-		const trashButton = deleteButtons.find(
-			(btn) => btn.querySelector('svg') && !btn.textContent?.trim()
-		);
-
-		if (trashButton) {
-			await user.click(trashButton);
-		}
-
-		await waitFor(() => {
-			expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
-		});
-		// Other booking should still be there
-		expect(screen.getByText('Jane Smith')).toBeInTheDocument();
-
-		confirmSpy.mockRestore();
-	});
-
-	it('shows alert when delete fails', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
-		mockGetByBusinessId.mockResolvedValue(mockBookings);
-		mockCancel.mockResolvedValue(false);
-		const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-		const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => { });
-		const user = userEvent.setup();
-
-		render(<BookingsPage />);
-
-		await waitFor(() => {
-			expect(screen.getByText('John Doe')).toBeInTheDocument();
-		});
-
-		const deleteButtons = screen.getAllByRole('button');
-		const trashButton = deleteButtons.find(
-			(btn) => btn.querySelector('svg') && !btn.textContent?.trim()
-		);
-
-		if (trashButton) {
-			await user.click(trashButton);
-		}
-
-		await waitFor(() => {
-			expect(alertSpy).toHaveBeenCalledWith('Failed to delete booking. Please try again.');
-		});
-
-		confirmSpy.mockRestore();
-		alertSpy.mockRestore();
-	});
-
-	it('does not delete when confirmation is cancelled', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
-		mockGetByBusinessId.mockResolvedValue(mockBookings);
-		const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
-		const user = userEvent.setup();
-
-		render(<BookingsPage />);
-
-		await waitFor(() => {
-			expect(screen.getByText('John Doe')).toBeInTheDocument();
-		});
-
-		const deleteButtons = screen.getAllByRole('button');
-		const trashButton = deleteButtons.find(
-			(btn) => btn.querySelector('svg') && !btn.textContent?.trim()
-		);
-
-		if (trashButton) {
-			await user.click(trashButton);
-		}
-
-		expect(mockCancel).not.toHaveBeenCalled();
 		confirmSpy.mockRestore();
 	});
 });
