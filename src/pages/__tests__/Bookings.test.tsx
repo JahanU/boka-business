@@ -177,6 +177,28 @@ describe('BookingsPage', () => {
 		});
 	});
 
+	it('shows Read-only badge and no delete button for past appointments', async () => {
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockGetByBusinessId.mockResolvedValue(mockBookings);
+		const user = userEvent.setup({ delay: null });
+
+		render(<BookingsPage />);
+
+		await waitFor(() => {
+			expect(screen.queryByRole('status')).not.toBeInTheDocument();
+		});
+
+		const pastTab = screen.getByRole('tab', { name: /past/i });
+		await user.click(pastTab);
+
+		expect(screen.getByText('Read-only')).toBeInTheDocument();
+		// The trash icon is inside a button, but there should be no buttons for past bookings now
+		const deleteButtons = screen.queryAllByRole('button').filter(
+			(btn) => btn.querySelector('svg')
+		);
+		expect(deleteButtons).toHaveLength(0);
+	});
+
 	it('fetches bookings for the business on mount', async () => {
 		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
 		mockGetByBusinessId.mockResolvedValue([]);

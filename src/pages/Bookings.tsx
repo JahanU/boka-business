@@ -106,7 +106,8 @@ export default function BookingsPage() {
 					.map((booking) => (
 						<div
 							key={booking.id}
-							className="group relative flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-xl border bg-background transition-all hover:shadow-md hover:border-primary/20"
+							className={`group relative flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-xl border bg-background transition-all hover:shadow-md hover:border-primary/20 ${type === 'past' ? 'opacity-70 grayscale-[0.2] bg-muted/30' : ''
+								}`}
 						>
 							<div className="space-y-3 flex-1">
 								<div className="flex items-center gap-3">
@@ -165,14 +166,20 @@ export default function BookingsPage() {
 							</div>
 
 							<div className="flex items-center gap-2 md:pl-4 md:border-l md:border-muted/50">
-								<Button
-									variant="ghost"
-									size="icon"
-									onClick={() => handleDelete(booking)}
-									className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full h-9 w-9"
-								>
-									<Trash2 className="h-4 w-4" />
-								</Button>
+								{type === 'upcoming' ? (
+									<Button
+										variant="ghost"
+										size="icon"
+										onClick={() => handleDelete(booking)}
+										className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full h-9 w-9"
+									>
+										<Trash2 className="h-4 w-4" />
+									</Button>
+								) : (
+									<Badge variant="outline" className="text-[10px] font-normal text-muted-foreground">
+										Read-only
+									</Badge>
+								)}
 							</div>
 						</div>
 					))}
