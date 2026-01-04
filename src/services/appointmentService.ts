@@ -48,6 +48,37 @@ export const appointmentService = {
 		return true;
 	},
 
+	async cancel(appointment: Appointment): Promise<boolean> {
+		// 1. If there's a Google Event ID, call the Netlify function to delete it
+		if (appointment.google_event_id) {
+			try {
+				const response = await fetch('/.netlify/functions/cancel-google-bookings', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						eventId: appointment.google_event_id,
+						customerEmail: appointment.customer_email,
+						customerName: appointment.customer_name,
+						serviceName: appointment.service_name,
+						appointmentDate: appointment.appointment_date,
+						staffEmail: (await supabase.from('staff').select('email').eq('id', appointment.staff_id).single()).data?.email,
+					}),
+				});
+
+				if (!response.ok) {
+					const errorData = await response.json();
+					console.error('Failed to cancel Google Calendar event:', errorData);
+					// We continue even if Google cancellation fails, or we could bail here
+				}
+			} catch (error) {
+				console.error('Error calling cancel-google-bookings function:', error);
+			}
+		}
+
+		// 2. Delete the appointment from Supabase
+		return this.delete(appointment.id);
+	},
+
 	async delete(id: string): Promise<boolean> {
 		const { error } = await supabase
 			.from('appointments')

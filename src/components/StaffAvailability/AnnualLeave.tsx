@@ -24,10 +24,8 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 
 	const handleAdd = async () => {
 		if (!dateRange?.from) {
-			alert('Please select a date range');
 			return;
 		}
-
 		setSaving(true);
 
 		try {
@@ -64,7 +62,7 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 
 	if (loading) {
 		return (
-			<div className="flex items-center justify-center py-8">
+			<div className="flex items-center justify-center py-8" role="status">
 				<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
 			</div>
 		);

@@ -18,6 +18,7 @@ export interface Staff {
     role: 'owner' | 'staff' | 'admin';
     created_at: string;
     updated_at: string;
+    businesses?: Business;
 }
 
 export interface Appointment {
@@ -27,12 +28,16 @@ export interface Appointment {
     customer_name?: string;
     customer_email?: string;
     customer_phone?: string;
-    service_name?: string;
+    service_id: string;
+    service_name: string;
+    service_price: number;
+    payment_status: 'paid_online' | 'pay_in_store';
     appointment_date: string;
     appointment_time: string;
     duration_minutes: number;
     status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
     notes?: string;
+    google_event_id?: string;
     created_at: string;
     updated_at: string;
 }
