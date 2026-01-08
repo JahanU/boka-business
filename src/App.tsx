@@ -3,7 +3,7 @@ import { AuthLayout } from '@/layouts/AuthLayout';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import BookingsPage from '@/pages/Bookings';
 import SettingsPage from '@/pages/Settings';
-// import DashboardPage from '@/pages/Dashboard'; TODO
+import DashboardPage from '@/pages/Dashboard';
 import HomePage from '@/pages/Home';
 import LoginPage from '@/pages/Login';
 import ResetPasswordPage from '@/pages/ResetPassword';
@@ -28,7 +28,7 @@ function App() {
 							</ProtectedRoute>
 						}
 					>
-						{/* <Route path="/dashboard" element={<DashboardPage />} /> */}
+						<Route path="/dashboard" element={<DashboardPage />} />
 						<Route path="/bookings" element={<BookingsPage />} />
 						<Route path="/settings" element={<SettingsPage />} />
 					</Route>
