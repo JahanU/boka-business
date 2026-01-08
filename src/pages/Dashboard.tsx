@@ -1,124 +1,309 @@
-import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
+import { useEffect, useState, useMemo } from "react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatBusinessName } from "@/lib/utils";
-
-
-// const stats = [
-// 	{ label: "Today’s bookings", value: "18", trend: "+3 vs. yesterday" },
-// 	{ label: "Pending payments", value: "$1,240", trend: "4 invoices" },
-// 	{ label: "Returning clients", value: "64%", trend: "steady" },
-// ];
-
-const tabs = [
-	{
-		id: "timeline",
-		title: "Timeline",
-		description: "Weekly booking pace and conversion cadence.",
-		content: (
-			<div className="space-y-4 text-sm text-muted-foreground">
-				<p>
-					<strong>Morning rush</strong> is filling faster than last week. Prioritize the
-					buffet of appointments from 9–11am.
-				</p>
-				<p>
-					<strong>Evening slots</strong> are still available on Thursday and Friday. Consider
-					sending a reminder or special offer to returning clients.
-				</p>
-			</div>
-		),
-	},
-	{
-		id: "payments",
-		title: "Payments",
-		description: "Track payouts, tips, and online checkouts.",
-		content: (
-			<div className="space-y-4 text-sm text-muted-foreground">
-				<p>
-					Online card payments cleared this morning; sweep them into your barber account.
-				</p>
-				<p>
-					<em>Tip of the day:</em> remind clients to pay via the app so the team sees realtime
-					status.
-				</p>
-			</div>
-		),
-	},
-	{
-		id: "team",
-		title: "Team",
-		description: "Availability and staff notes for the week.",
-		content: (
-			<div className="space-y-4 text-sm text-muted-foreground">
-				<p>Riley is booked out Friday, but Monday still has a few gaps.</p>
-				<p>Logan will cover the late shift on Tuesday; remind clients to book the premium chair.</p>
-			</div>
-		),
-	},
-];
+import { appointmentService } from "@/services/appointmentService";
+import { calculateDashboardMetrics, DashboardMetrics } from "@/lib/dashboardUtils";
+import { Appointment } from "@/types";
+import { format, parseISO } from "date-fns";
+import {
+	TrendingUp,
+	TrendingDown,
+	Calendar,
+	Clock,
+	DollarSign,
+	CreditCard,
+	Wallet,
+	Loader2,
+	ArrowRight
+} from "lucide-react";
+import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
 
 export default function DashboardPage() {
-	const { business, loading } = useAuth();
-	const [activeTab, setActiveTab] = useState(tabs[0].id);
-	// const activeContent = useMemo(() => tabs.find((tab) => tab.id === activeTab)!, [activeTab]);
+	const { business, loading: authLoading } = useAuth();
+	const [appointments, setAppointments] = useState<Appointment[]>([]);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const fetchAppointments = async () => {
+			if (!business?.id) return;
+			setLoading(true);
+			const data = await appointmentService.getByBusinessId(business.id);
+			setAppointments(data);
+			setLoading(false);
+		};
+
+		fetchAppointments();
+	}, [business?.id]);
+
+	const metrics: DashboardMetrics = useMemo(() => {
+		return calculateDashboardMetrics(appointments);
+	}, [appointments]);
+
+	if (authLoading || loading) {
+		return (
+			<div className="flex h-[400px] items-center justify-center">
+				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+			</div>
+		);
+	}
+
+	const chartConfig = {
+		revenue: {
+			label: "Revenue",
+			color: "hsl(var(--primary))",
+		},
+	};
 
 	return (
-		<div className="space-y-10">
-			<div className="space-y-2 rounded-2xl border border-border bg-card p-8 shadow-lg">
+		<div className="space-y-6">
+			{/* Header */}
+			<div className="space-y-2">
 				<p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Staff dashboard</p>
 				<h1 className="text-4xl font-semibold text-foreground">
-					{loading ? "Loading..." : (business ? formatBusinessName(business.name) : "")}
+					{business ? formatBusinessName(business.name) : "Dashboard"}
 				</h1>
 				<p className="text-base text-muted-foreground">
-					Tailor each shift with the context your staff needs. Use the tabs below to cycle through
-					booking highlights, payments, and team notes.
+					Overview of your bookings, revenue, and business insights.
 				</p>
-
-				<div className="flex flex-wrap gap-2 pt-4">
-					{tabs.map((tab) => (
-						<Button
-							key={tab.id}
-							size="sm"
-							variant={activeTab === tab.id ? "default" : "secondary"}
-							className="transition"
-							onClick={() => setActiveTab(tab.id)}
-						>
-							{tab.title}
-						</Button>
-					))}
-				</div>
 			</div>
 
-			{/* <div className="space-y-6">
-				<div className="grid gap-6 md:grid-cols-3">
-					{stats.map(({ label, value, trend }) => (
-						<Card key={label} className="bg-background/70">
-							<CardHeader className="space-y-2">
-								<p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-									{label}
-								</p>
-								<CardTitle className="text-3xl">{value}</CardTitle>
-								<CardDescription>{trend}</CardDescription>
-							</CardHeader>
-						</Card>
-					))}
-				</div>
-
-				<Card className="overflow-hidden">
-					<CardHeader className="space-y-2 rounded-b-none border-b border-border bg-background/60 px-6 py-4">
-						<p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-							{activeContent.title}
-						</p>
-						<CardTitle className="text-2xl">{activeContent.title}</CardTitle>
-						<CardDescription>{activeContent.description}</CardDescription>
+			{/* Key Metrics Cards */}
+			<div className="grid gap-4 md:grid-cols-3">
+				{/* Today's Revenue */}
+				<Card>
+					<CardHeader className="pb-2">
+						<div className="flex items-center justify-between">
+							<CardDescription>Today's Revenue</CardDescription>
+							<DollarSign className="h-4 w-4 text-muted-foreground" />
+						</div>
+						<CardTitle className="text-3xl">£{metrics.todayRevenue.toFixed(2)}</CardTitle>
 					</CardHeader>
-
-					<CardContent className="px-6 py-6 space-y-4 text-sm">
-						{activeContent.content}
+					<CardContent>
+						<div className="text-xs text-muted-foreground space-y-1">
+							<div className="flex justify-between">
+								<span className="flex items-center gap-1">
+									<CreditCard className="h-3 w-3" /> Online
+								</span>
+								<span className="font-medium">£{metrics.todayRevenueOnline.toFixed(2)}</span>
+							</div>
+							<div className="flex justify-between">
+								<span className="flex items-center gap-1">
+									<Wallet className="h-3 w-3" /> In Store
+								</span>
+								<span className="font-medium">£{metrics.todayRevenueInStore.toFixed(2)}</span>
+							</div>
+						</div>
 					</CardContent>
 				</Card>
-			</div> */}
+
+				{/* This Week's Bookings */}
+				<Card>
+					<CardHeader className="pb-2">
+						<div className="flex items-center justify-between">
+							<CardDescription>This Week</CardDescription>
+							<Calendar className="h-4 w-4 text-muted-foreground" />
+						</div>
+						<CardTitle className="text-3xl">{metrics.weeklyBookingsCount}</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="flex items-center gap-2 text-xs">
+							{metrics.weeklyRevenueChange >= 0 ? (
+								<TrendingUp className="h-4 w-4 text-emerald-500" />
+							) : (
+								<TrendingDown className="h-4 w-4 text-red-500" />
+							)}
+							<span className={metrics.weeklyRevenueChange >= 0 ? "text-emerald-500" : "text-red-500"}>
+								{metrics.weeklyRevenueChange >= 0 ? "+" : ""}
+								{metrics.weeklyRevenueChange.toFixed(1)}%
+							</span>
+							<span className="text-muted-foreground">vs last week</span>
+						</div>
+						<div className="mt-2 text-xs text-muted-foreground">
+							Revenue: £{metrics.weeklyRevenue.toFixed(2)}
+						</div>
+					</CardContent>
+				</Card>
+
+				{/* Upcoming Today */}
+				<Card>
+					<CardHeader className="pb-2">
+						<div className="flex items-center justify-between">
+							<CardDescription>Remaining Today</CardDescription>
+							<Clock className="h-4 w-4 text-muted-foreground" />
+						</div>
+						<CardTitle className="text-3xl">{metrics.upcomingTodayCount}</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="text-xs text-muted-foreground">
+							{metrics.nextAppointment ? (
+								<div className="space-y-1">
+									<div>Next: {format(parseISO(`${metrics.nextAppointment.appointment_date}T${metrics.nextAppointment.appointment_time}`), 'HH:mm')}</div>
+									<div className="font-medium text-foreground">{metrics.nextAppointment.customer_name || 'Guest'}</div>
+								</div>
+							) : (
+								<div>No upcoming appointments</div>
+							)}
+							<div className="mt-2">
+								Expected: £{metrics.upcomingTodayRevenue.toFixed(2)}
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+
+			{/* Charts and Insights Row */}
+			<div className="grid gap-4 md:grid-cols-2">
+				{/* Weekly Revenue Chart */}
+				<Card>
+					<CardHeader>
+						<CardTitle>7-Day Revenue</CardTitle>
+						<CardDescription>Daily revenue for the past week</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<ChartContainer config={chartConfig} className="h-[200px] w-full">
+							<BarChart data={metrics.dailyRevenue}>
+								<CartesianGrid strokeDasharray="3 3" vertical={false} />
+								<XAxis
+									dataKey="date"
+									tickLine={false}
+									axisLine={false}
+									tickMargin={8}
+								/>
+								<YAxis
+									tickLine={false}
+									axisLine={false}
+									tickMargin={8}
+									tickFormatter={(value) => `£${value}`}
+								/>
+								<ChartTooltip content={<ChartTooltipContent />} />
+								<Bar
+									dataKey="revenue"
+									fill="var(--color-revenue)"
+									radius={[4, 4, 0, 0]}
+								/>
+							</BarChart>
+						</ChartContainer>
+					</CardContent>
+				</Card>
+
+				{/* Payment Status & Popular Services */}
+				<Card>
+					<CardHeader>
+						<CardTitle>Weekly Insights</CardTitle>
+						<CardDescription>Payment breakdown and popular services</CardDescription>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						{/* Payment Status */}
+						<div>
+							<p className="text-sm font-medium mb-2">Payment Status</p>
+							<div className="space-y-2">
+								<div className="flex justify-between items-center">
+									<span className="text-sm text-muted-foreground flex items-center gap-2">
+										<CreditCard className="h-4 w-4" />
+										Paid Online
+									</span>
+									<span className="text-sm font-medium">£{metrics.paymentStatusSummary.paidOnline.toFixed(2)}</span>
+								</div>
+								<div className="flex justify-between items-center">
+									<span className="text-sm text-muted-foreground flex items-center gap-2">
+										<Wallet className="h-4 w-4" />
+										Pay in Store
+									</span>
+									<span className="text-sm font-medium">£{metrics.paymentStatusSummary.payInStore.toFixed(2)}</span>
+								</div>
+							</div>
+						</div>
+
+						{/* Popular Services */}
+						<div>
+							<p className="text-sm font-medium mb-2">Popular Services</p>
+							<div className="space-y-2">
+								{metrics.popularServices.length > 0 ? (
+									metrics.popularServices.map((service, index) => (
+										<div key={service.name} className="flex justify-between items-center">
+											<span className="text-sm text-muted-foreground">
+												{index + 1}. {service.name}
+											</span>
+											<Badge variant="secondary" className="text-xs">
+												{service.count} bookings
+											</Badge>
+										</div>
+									))
+								) : (
+									<p className="text-sm text-muted-foreground">No data available</p>
+								)}
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+
+			{/* Today's Schedule */}
+			<Card>
+				<CardHeader>
+					<div className="flex items-center justify-between">
+						<div>
+							<CardTitle>Today's Schedule</CardTitle>
+							<CardDescription>Upcoming appointments for today</CardDescription>
+						</div>
+						<a
+							href="/bookings"
+							className="text-sm text-primary hover:underline flex items-center gap-1"
+						>
+							View all <ArrowRight className="h-4 w-4" />
+						</a>
+					</div>
+				</CardHeader>
+				<CardContent>
+					{metrics.todaySchedule.length > 0 ? (
+						<div className="space-y-3">
+							{metrics.todaySchedule.map((apt) => (
+								<div
+									key={apt.id}
+									className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+								>
+									<div className="flex items-center gap-4">
+										<div className="text-sm font-medium min-w-[60px]">
+											{format(parseISO(`${apt.appointment_date}T${apt.appointment_time}`), 'HH:mm')}
+										</div>
+										<div className="space-y-1">
+											<div className="text-sm font-medium">{apt.customer_name || 'Guest'}</div>
+											<div className="text-xs text-muted-foreground">{apt.service_name}</div>
+										</div>
+									</div>
+									<div className="flex items-center gap-3">
+										<div className="text-sm font-medium">£{Number(apt.service_price).toFixed(2)}</div>
+										<Badge
+											variant={apt.payment_status === 'paid_online' ? 'default' : 'secondary'}
+											className="text-xs"
+										>
+											{apt.payment_status === 'paid_online' ? 'Paid' : 'Pay in store'}
+										</Badge>
+										<Badge
+											variant={
+												apt.status === 'confirmed' ? 'success' :
+													apt.status === 'pending' ? 'warning' :
+														'secondary'
+											}
+											className="text-xs capitalize"
+										>
+											{apt.status}
+										</Badge>
+									</div>
+								</div>
+							))}
+						</div>
+					) : (
+						<div className="text-center py-8 text-muted-foreground">
+							<Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
+							<p>No appointments scheduled for today</p>
+						</div>
+					)}
+				</CardContent>
+			</Card>
 		</div>
 	);
 }
