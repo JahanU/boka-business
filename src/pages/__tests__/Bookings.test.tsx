@@ -81,7 +81,7 @@ describe('BookingsPage', () => {
 	});
 
 	it('shows loading state initially', () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockImplementation(() => new Promise(() => { })); // Never resolves
 
 		render(<BookingsPage />);
@@ -90,7 +90,7 @@ describe('BookingsPage', () => {
 	});
 
 	it('renders the bookings page header', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockResolvedValue([]);
 
 		render(<BookingsPage />);
@@ -102,7 +102,7 @@ describe('BookingsPage', () => {
 	});
 
 	it('shows empty states for upcoming and past tabs', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockResolvedValue([]);
 		const user = userEvent.setup({ delay: null });
 
@@ -119,7 +119,7 @@ describe('BookingsPage', () => {
 	});
 
 	it('categorizes appointments correctly into Upcoming and Past tabs', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockResolvedValue(mockBookings);
 		const user = userEvent.setup({ delay: null });
 
@@ -142,7 +142,7 @@ describe('BookingsPage', () => {
 	});
 
 	it('sorts upcoming appointments by date ascending', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockResolvedValue(mockBookings);
 
 		render(<BookingsPage />);
@@ -158,7 +158,7 @@ describe('BookingsPage', () => {
 			{ ...mockBookings[1], id: 'old-1', customer_name: 'Oldest', appointment_date: '2026-01-01' },
 			{ ...mockBookings[1], id: 'old-2', customer_name: 'Newer Past', appointment_date: '2026-01-03' },
 		];
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockResolvedValue(manyPastBookings);
 		const user = userEvent.setup({ delay: null });
 
@@ -178,7 +178,7 @@ describe('BookingsPage', () => {
 	});
 
 	it('shows no delete button for past appointments', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockResolvedValue(mockBookings);
 		const user = userEvent.setup({ delay: null });
 
@@ -199,7 +199,7 @@ describe('BookingsPage', () => {
 	});
 
 	it('fetches bookings for the business on mount', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockResolvedValue([]);
 
 		render(<BookingsPage />);
@@ -210,7 +210,7 @@ describe('BookingsPage', () => {
 	});
 
 	it('calls delete service when delete button is clicked and confirmed', async () => {
-		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' } });
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockResolvedValue(mockBookings);
 		const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
 		const user = userEvent.setup({ delay: null });
