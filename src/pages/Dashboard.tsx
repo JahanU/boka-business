@@ -13,7 +13,7 @@ import {
 	TrendingDown,
 	Calendar,
 	Clock,
-	DollarSign,
+	PoundSterling,
 	CreditCard,
 	Wallet,
 	Loader2,
@@ -77,7 +77,7 @@ export default function DashboardPage() {
 					<CardHeader className="pb-2">
 						<div className="flex items-center justify-between">
 							<CardDescription>Today's Revenue</CardDescription>
-							<DollarSign className="h-4 w-4 text-muted-foreground" />
+							<PoundSterling className="h-4 w-4 text-muted-foreground" />
 						</div>
 						<CardTitle className="text-3xl">£{metrics.todayRevenue.toFixed(2)}</CardTitle>
 					</CardHeader>
