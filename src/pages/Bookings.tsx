@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function BookingsPage() {
-	const { business } = useAuth();
+	const { business, staff } = useAuth();
 	const [bookings, setBookings] = useState<Appointment[]>([]);
 	const [loading, setLoading] = useState(true);
 
@@ -56,7 +56,7 @@ export default function BookingsPage() {
 	const handleDelete = async (appointment: Appointment) => {
 		if (!confirm('Are you sure you want to delete this booking?')) return;
 
-		const success = await appointmentService.cancel(appointment);
+		const success = await appointmentService.cancel(appointment, staff!.email);
 		if (success) {
 			setBookings(prev => prev.filter(b => b.id !== appointment.id));
 		} else {
