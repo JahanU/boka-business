@@ -111,9 +111,6 @@ export default function BookingsPage() {
 						>
 							<div className="space-y-3 flex-1">
 								<div className="flex items-center gap-3">
-									<Badge variant={getStatusVariant(booking.status)} className="capitalize font-medium">
-										{booking.status}
-									</Badge>
 									<div className="flex items-center gap-1.5 text-sm font-semibold text-primary">
 										<Scissors className="h-4 w-4" />
 										{booking.service_name || 'Standard Service'}

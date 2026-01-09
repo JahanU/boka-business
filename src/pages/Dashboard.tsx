@@ -272,25 +272,16 @@ export default function DashboardPage() {
 										<div className="space-y-1">
 											<div className="text-sm font-medium">{apt.customer_name || 'Guest'}</div>
 											<div className="text-xs text-muted-foreground">{apt.service_name}</div>
+											<div className="text-sm font-medium">£{Number(apt.service_price).toFixed(2)}</div>
+
 										</div>
 									</div>
 									<div className="flex items-center gap-3">
-										<div className="text-sm font-medium">£{Number(apt.service_price).toFixed(2)}</div>
 										<Badge
 											variant={apt.payment_status === 'paid_online' ? 'default' : 'secondary'}
 											className="text-xs"
 										>
 											{apt.payment_status === 'paid_online' ? 'Paid' : 'Pay in store'}
-										</Badge>
-										<Badge
-											variant={
-												apt.status === 'confirmed' ? 'success' :
-													apt.status === 'pending' ? 'warning' :
-														'secondary'
-											}
-											className="text-xs capitalize"
-										>
-											{apt.status}
 										</Badge>
 									</div>
 								</div>
