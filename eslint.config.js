@@ -4,33 +4,28 @@ import reactHooks from 'eslint-plugin-react-hooks'; // React Hooks specific lint
 import reactRefresh from 'eslint-plugin-react-refresh'; // React Refresh specific linting rules for Vite
 import tsParser from '@typescript-eslint/parser'; // TypeScript parser for ESLint
 import tsPlugin from '@typescript-eslint/eslint-plugin'; // TypeScript specific linting rules plugin
-import { defineConfig, globalIgnores } from 'eslint/config'; // Utility to define ESLint configuration and handle global ignores
 
-export default defineConfig([
-  globalIgnores(['dist']),
+export default [
+  {
+    ignores: [
+      'dist',
+      'node_modules',
+      'public',
+      '.netlify',
+      'netlify/.netlify'
+    ]
+  },
+  js.configs.recommended,
   ...tsPlugin.configs['flat/recommended'],
   {
-    files: ['src/**/*.{js,ts,tsx}'], // Files to apply this configuration to
-    // Extended configurations
-    extends: [
-      js.configs.recommended,
-      reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
-    ],
-    // Plugins to load
-    plugins: {
-      '@typescript-eslint': tsPlugin,
-    },
-    // Language and environment options
+    files: ['src/**/*.{js,ts,tsx}', 'netlify/functions/**/*.{js,ts}'],
     languageOptions: {
       parser: tsParser,
       ecmaVersion: 'latest',
       sourceType: 'module',
-      // Define global variables
       globals: {
         ...globals.browser,
         ...globals.node,
-        // Test environment globals
         describe: 'readonly',
         it: 'readonly',
         expect: 'readonly',
@@ -40,12 +35,20 @@ export default defineConfig([
       },
       // Parser options for TypeScript
       parserOptions: {
-        project: './tsconfig.json',
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
+    },
+    // Plugins to load
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
     },
     // Custom rules overrides
     rules: {
-      // Disable the base ESLint unused vars rule in favor of the TypeScript-aware version.
+      // React Hooks specific linting rules
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': 'off',
       'no-unused-vars': 'off',
       // TypeScript specific unused variables rule with ignore patterns
       '@typescript-eslint/no-unused-vars': [
@@ -56,10 +59,7 @@ export default defineConfig([
           ignoreRestSiblings: true, // Allow unused variables when destructuring
         },
       ],
-      // Disable React Refresh component export rule if needed (set to 'off' here)
-      'react-refresh/only-export-components': 'off',
-      semi: ['error', 'always'],
-      // indent: ['error', 'tab'],
+      'semi': ['error', 'always'],
     },
   },
-]);
+];
