@@ -43,16 +43,6 @@ export default function BookingsPage() {
 		);
 	}, [bookings]);
 
-	const getStatusVariant = (status: Appointment['status']) => {
-		switch (status) {
-			case 'confirmed': return 'success';
-			case 'pending': return 'warning';
-			case 'cancelled': return 'destructive';
-			case 'completed': return 'info';
-			default: return 'secondary';
-		}
-	};
-
 	const handleDelete = async (appointment: Appointment) => {
 		if (!confirm('Are you sure you want to delete this booking?')) return;
 
@@ -110,17 +100,19 @@ export default function BookingsPage() {
 								}`}
 						>
 							<div className="space-y-3 flex-1">
-								<div className="flex items-center gap-3">
+								<div className="space-y-2">
 									<div className="flex items-center gap-1.5 text-sm font-semibold text-primary">
-										<Scissors className="h-4 w-4" />
-										{booking.service_name || 'Standard Service'}
+										<Scissors className="h-4 w-4 flex-shrink-0" />
+										<span className="truncate">{booking.service_name || 'Standard Service'}</span>
 									</div>
-									<div className="text-sm font-bold text-foreground">
-										£{Number(booking.service_price).toFixed(2)}
+									<div className="flex items-center gap-3">
+										<div className="text-lg font-bold text-foreground">
+											£{Number(booking.service_price).toFixed(2)}
+										</div>
+										<Badge variant={booking.payment_status === 'paid_online' ? 'info' : 'secondary'} className="text-[10px] h-5 uppercase flex-shrink-0">
+											{booking.payment_status?.replaceAll('_', ' ')}
+										</Badge>
 									</div>
-									<Badge variant={booking.payment_status === 'paid_online' ? 'info' : 'secondary'} className="text-[10px] h-5 uppercase">
-										{booking.payment_status?.replaceAll('_', ' ')}
-									</Badge>
 								</div>
 
 								<div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6">
