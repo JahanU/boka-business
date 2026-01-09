@@ -105,7 +105,7 @@ export default function BookingsPage() {
 										<Scissors className="h-4 w-4 flex-shrink-0" />
 										<span className="truncate">{booking.service_name || 'Standard Service'}</span>
 									</div>
-									<div className="flex items-center gap-3">
+									<div className="flex items-center justify-between gap-3">
 										<div className="text-lg font-bold text-foreground">
 											£{Number(booking.service_price).toFixed(2)}
 										</div>
