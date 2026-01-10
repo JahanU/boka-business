@@ -48,7 +48,7 @@ export const appointmentService = {
 		return true;
 	},
 
-	async cancel(appointment: Appointment): Promise<boolean> {
+	async cancel(appointment: Appointment, staffEmail: string): Promise<boolean> {
 		// 1. If there's a Google Event ID, call the Netlify function to delete it
 		if (appointment.google_event_id) {
 			try {
@@ -61,7 +61,7 @@ export const appointmentService = {
 						customerName: appointment.customer_name,
 						serviceName: appointment.service_name,
 						appointmentDate: appointment.appointment_date,
-						staffEmail: (await supabase.from('staff').select('email').eq('id', appointment.staff_id).single()).data?.email,
+						staffEmail,
 					}),
 				});
 

@@ -24,7 +24,7 @@ function LoginPage() {
 
 	useEffect(() => {
 		if (!loading && user) {
-			navigate('/bookings', { replace: true }); // Redirect if already logged in
+			navigate('/dashboard', { replace: true }); // Redirect if already logged in
 		}
 	}, [loading, user, navigate]);
 
@@ -42,7 +42,7 @@ function LoginPage() {
 				return;
 			}
 
-			navigate('/bookings');
+			navigate('/dashboard');
 			return;
 		}
 
@@ -65,7 +65,7 @@ function LoginPage() {
 					<p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Staff login</p>
 					<CardTitle className="text-2xl">Access your dashboard</CardTitle>
 					<CardDescription>
-						Sign in with your staff credentials to manage bookings and payments.
+            Sign in with your staff credentials to manage bookings and payments.
 					</CardDescription>
 				</CardHeader>
 

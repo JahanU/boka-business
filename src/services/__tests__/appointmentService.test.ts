@@ -35,36 +35,28 @@ describe('appointmentService', () => {
             created_at: '2025-01-01T00:00:00Z',
             updated_at: '2025-01-01T00:00:00Z',
         };
+        const mockStaffEmail = 'staff@example.com';
 
         it('calls netlify function when google_event_id exists', async () => {
             const mockFrom = vi.mocked(supabase.from);
-
-            const mockStaffQuery = {
-                select: vi.fn().mockReturnThis(),
-                eq: vi.fn().mockReturnThis(),
-                single: vi.fn().mockResolvedValue({ data: { email: 'staff@example.com' }, error: null }),
-            };
 
             const mockDeleteQuery = {
                 delete: vi.fn().mockReturnThis(),
                 eq: vi.fn().mockResolvedValue({ error: null }),
             };
 
-            mockFrom.mockImplementation((table: string) => {
-                if (table === 'staff') return mockStaffQuery as unknown as ReturnType<typeof supabase.from>;
-                return mockDeleteQuery as unknown as ReturnType<typeof supabase.from>;
-            });
+            mockFrom.mockReturnValue(mockDeleteQuery as unknown as ReturnType<typeof supabase.from>);
 
             vi.mocked(fetch).mockResolvedValueOnce({
                 ok: true,
                 json: () => Promise.resolve({}),
             } as Response);
 
-            const result = await appointmentService.cancel(mockAppointment);
+            const result = await appointmentService.cancel(mockAppointment, mockStaffEmail);
 
             expect(fetch).toHaveBeenCalledWith('/.netlify/functions/cancel-google-bookings', expect.objectContaining({
                 method: 'POST',
-                body: expect.stringContaining('staff@example.com'),
+                body: expect.stringContaining(mockStaffEmail),
             }));
             expect(result).toBe(true);
         });
@@ -77,7 +69,7 @@ describe('appointmentService', () => {
             };
             mockFrom.mockReturnValue(mockDeleteQuery as unknown as ReturnType<typeof supabase.from>);
 
-            const result = await appointmentService.cancel({ ...mockAppointment, google_event_id: undefined });
+            const result = await appointmentService.cancel({ ...mockAppointment, google_event_id: undefined }, mockStaffEmail);
 
             expect(result).toBe(true);
             expect(fetch).not.toHaveBeenCalled();
@@ -86,20 +78,12 @@ describe('appointmentService', () => {
 
         it('continues to delete appointment even if fetch fails', async () => {
             const mockFrom = vi.mocked(supabase.from);
-            const mockStaffQuery = {
-                select: vi.fn().mockReturnThis(),
-                eq: vi.fn().mockReturnThis(),
-                single: vi.fn().mockResolvedValue({ data: { email: 'staff@example.com' }, error: null }),
-            };
             const mockDeleteQuery = {
                 delete: vi.fn().mockReturnThis(),
                 eq: vi.fn().mockResolvedValue({ error: null }),
             };
 
-            mockFrom.mockImplementation((table: string) => {
-                if (table === 'staff') return mockStaffQuery as unknown as ReturnType<typeof supabase.from>;
-                return mockDeleteQuery as unknown as ReturnType<typeof supabase.from>;
-            });
+            mockFrom.mockReturnValue(mockDeleteQuery as unknown as ReturnType<typeof supabase.from>);
 
             vi.mocked(fetch).mockResolvedValueOnce({
                 ok: false,
@@ -107,7 +91,7 @@ describe('appointmentService', () => {
                 json: () => Promise.resolve({ error: 'Internal Server Error' }),
             } as Response);
 
-            const result = await appointmentService.cancel(mockAppointment);
+            const result = await appointmentService.cancel(mockAppointment, mockStaffEmail);
 
             expect(result).toBe(true);
             expect(fetch).toHaveBeenCalled();
