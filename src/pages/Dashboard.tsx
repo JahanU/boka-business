@@ -162,8 +162,8 @@ export default function DashboardPage() {
 						<CardTitle>7-Day Revenue</CardTitle>
 						<CardDescription>Daily revenue for the past week</CardDescription>
 					</CardHeader>
-					<CardContent>
-						<ChartContainer config={chartConfig} className="h-[200px] w-full">
+					<CardContent className="min-w-0">
+						<ChartContainer config={chartConfig} className="aspect-auto h-[200px] w-full">
 							<BarChart data={metrics.dailyRevenue}>
 								<CartesianGrid strokeDasharray="3 3" vertical={false} />
 								<XAxis
@@ -195,7 +195,7 @@ export default function DashboardPage() {
 						<CardTitle>Weekly Insights</CardTitle>
 						<CardDescription>Payment breakdown and popular services</CardDescription>
 					</CardHeader>
-					<CardContent className="space-y-4">
+					<CardContent className="space-y-4 min-w-0">
 						{/* Payment Status */}
 						<div>
 							<p className="text-sm font-medium mb-2">Payment Status</p>
@@ -223,11 +223,11 @@ export default function DashboardPage() {
 							<div className="space-y-2">
 								{metrics.popularServices.length > 0 ? (
 									metrics.popularServices.map((service, index) => (
-										<div key={service.name} className="flex justify-between items-center">
-											<span className="text-sm text-muted-foreground">
+										<div key={service.name} className="flex justify-between items-center gap-2">
+											<span className="text-sm text-muted-foreground truncate">
 												{index + 1}. {service.name}
 											</span>
-											<Badge variant="secondary" className="text-xs">
+											<Badge variant="secondary" className="text-xs shrink-0">
 												{service.count} bookings
 											</Badge>
 										</div>
