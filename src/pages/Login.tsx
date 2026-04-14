@@ -78,7 +78,7 @@ function LoginPage() {
 								name="email"
 								type="email"
 								autoComplete="email"
-								placeholder="you@barbershop.com"
+								placeholder="you@yourbusiness.com"
 								value={email}
 								onChange={(event) => setEmail(event.target.value)}
 								required
