@@ -46,7 +46,7 @@ export default function BookingsPage() {
 	const handleDelete = async (appointment: Appointment) => {
 		if (!confirm('Are you sure you want to delete this booking?')) return;
 
-		const success = await appointmentService.cancel(appointment, staff!.email);
+		const success = await appointmentService.cancel(appointment, staff!.email, business!.name);
 		if (success) {
 			setBookings(prev => prev.filter(b => b.id !== appointment.id));
 		} else {

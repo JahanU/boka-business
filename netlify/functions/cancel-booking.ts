@@ -20,20 +20,21 @@ export const handler: Handler = async (event) => {
     }
 
     try {
-        const { customerEmail, customerName, serviceName, appointmentDate } = JSON.parse(event.body || '{}');
+        const { customerEmail, customerName, serviceName, appointmentDate, businessName } = JSON.parse(event.body || '{}');
 
         // Send cancellation email via Nodemailer
         if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD && customerEmail) {
             try {
+                const displayName = businessName || 'Our Business';
                 await transporter.sendMail({
-                    from: `"Ali Barbers" <${process.env.GMAIL_USER}>`,
+                    from: `"${displayName}" <${process.env.GMAIL_USER}>`,
                     to: customerEmail,
-                    subject: 'Appointment Cancelled - Ali Barbers',
+                    subject: `Appointment Cancelled - ${displayName}`,
                     html: `
                         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                             <h1 style="color: #dc2626;">Appointment Cancelled</h1>
                             <p>Hi ${customerName || 'Customer'},</p>
-                            <p>We are writing to inform you that your appointment at Ali Barbers has been cancelled.</p>
+                            <p>We are writing to inform you that your appointment at ${displayName} has been cancelled.</p>
                             <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc2626;">
                                 <p><strong>Service:</strong> ${serviceName || 'N/A'}</p>
                                 <p><strong>Date:</strong> ${appointmentDate || 'N/A'}</p>
@@ -41,7 +42,7 @@ export const handler: Handler = async (event) => {
                             <p>If you have any questions or would like to reschedule, please visit our website to find our contact information.</p>
                             <p>Sorry for any inconvenience caused.</p>
                             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                            <p style="font-size: 12px; color: #666;">This is an automated notification from your barber.</p>
+                            <p style="font-size: 12px; color: #666;">This is an automated notification from ${displayName}.</p>
                         </div>
                     `
                 });
@@ -53,7 +54,7 @@ export const handler: Handler = async (event) => {
                 };
             }
         } else {
-             console.log('Skipping email. Missing credentials or customerEmail');
+            console.log('Skipping email. Missing credentials or customerEmail');
         }
 
         return {

@@ -35,6 +35,7 @@ describe('appointmentService', () => {
             updated_at: '2025-01-01T00:00:00Z',
         };
         const mockStaffEmail = 'staff@example.com';
+        const mockBusinessName = 'Test Business';
 
         it('calls netlify function to send cancel email', async () => {
             const mockFrom = vi.mocked(supabase.from);
@@ -51,7 +52,7 @@ describe('appointmentService', () => {
                 json: () => Promise.resolve({}),
             } as Response);
 
-            const result = await appointmentService.cancel(mockAppointment, mockStaffEmail);
+            const result = await appointmentService.cancel(mockAppointment, mockStaffEmail, mockBusinessName);
 
             expect(fetch).toHaveBeenCalledWith('/.netlify/functions/cancel-booking', expect.objectContaining({
                 method: 'POST',
@@ -75,7 +76,7 @@ describe('appointmentService', () => {
                 json: () => Promise.resolve({ error: 'Internal Server Error' }),
             } as Response);
 
-            const result = await appointmentService.cancel(mockAppointment, mockStaffEmail);
+            const result = await appointmentService.cancel(mockAppointment, mockStaffEmail, mockBusinessName);
 
             expect(result).toBe(true);
             expect(fetch).toHaveBeenCalled();
