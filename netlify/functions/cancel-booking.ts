@@ -1,12 +1,9 @@
 /**
- * BACKEND FUNCTION: Cancel Booking
+ * BACKEND FUNCTION: Cancel Booking Email
  * 
- * ROLE: Deletes an appointment from the Google Calendar.
- * ACTIONS: Authenticates via a Google Service Account to delete an event
- * from the BARBER'S calendar.
+ * ROLE: Sends a cancellation email to the customer.
  */
 import { Handler } from '@netlify/functions';
-import { google } from 'googleapis';
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
@@ -17,51 +14,13 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
-
 export const handler: Handler = async (event) => {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
     try {
-        const { eventId, customerEmail, customerName, serviceName, appointmentDate, staffEmail } = JSON.parse(event.body || '{}');
-
-        if (!eventId) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({ error: 'Missing eventId in request body' })
-            };
-        }
-
-        let serviceAccount: { client_email?: string; private_key?: string } = {};
-
-        if (process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
-            serviceAccount = {
-                client_email: process.env.GOOGLE_CLIENT_EMAIL,
-                private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-            };
-        } else {
-            throw new Error('Google Credentials not found.');
-        }
-
-        const auth = new google.auth.GoogleAuth({
-            credentials: {
-                client_email: serviceAccount.client_email,
-                private_key: serviceAccount.private_key,
-            },
-            scopes: SCOPES,
-        });
-
-        const calendar = google.calendar({ version: 'v3', auth });
-        const calendarId = staffEmail || 'primary';
-
-        console.log(`Attempting to delete event: ${eventId} from calendar: ${calendarId}`);
-
-        await calendar.events.delete({
-            calendarId: calendarId,
-            eventId: eventId,
-        });
+        const { customerEmail, customerName, serviceName, appointmentDate } = JSON.parse(event.body || '{}');
 
         // Send cancellation email via Nodemailer
         if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD && customerEmail) {
@@ -88,12 +47,18 @@ export const handler: Handler = async (event) => {
                 });
             } catch (emailError) {
                 console.error('Failed to send cancellation email:', emailError);
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({ error: 'Failed to send email' })
+                };
             }
+        } else {
+             console.log('Skipping email. Missing credentials or customerEmail');
         }
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ message: 'Event deleted successfully' }),
+            body: JSON.stringify({ message: 'Cancellation email sent successfully (if configured and customer email provided)' }),
         };
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';

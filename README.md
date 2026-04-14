@@ -33,7 +33,6 @@ A modern, full-featured business management platform for salons and barbershops.
 
 ### 📧 Notifications
 - **Email Confirmations**: Automated booking confirmations via Nodemailer
-- **Google Calendar Sync**: Automatic calendar event creation and management
 
 ## Getting Started
 
@@ -42,7 +41,6 @@ A modern, full-featured business management platform for salons and barbershops.
 - Node.js 18+ and npm
 - Supabase account and project
 - Stripe account (for payment processing)
-- Google Cloud project (for Calendar API)
 - Netlify account (for serverless functions)
 
 ### Installation
@@ -69,10 +67,6 @@ A modern, full-featured business management platform for salons and barbershops.
     # Email (GMAIL)
     GMAIL_USER=
     GMAIL_APP_PASSWORD=
-
-    # Google Service Account (Calendar API)
-    GOOGLE_CLIENT_EMAIL=
-    GOOGLE_PRIVATE_KEY=
     ```
 
 4. **Set up the database**
@@ -114,7 +108,6 @@ A modern, full-featured business management platform for salons and barbershops.
 - **[Supabase](https://supabase.com/)** - Database and authentication
 - **[Netlify Functions](https://www.netlify.com/products/functions/)** - Serverless backend
 - **[Stripe](https://stripe.com/)** - Payment processing
-- **[Google Calendar API](https://developers.google.com/calendar)** - Calendar integration
 - **[Nodemailer](https://nodemailer.com/)** - Email notifications
 
 ### UI & Styling
