@@ -163,7 +163,7 @@ export default function DashboardPage() {
 						<CardDescription>Daily revenue for the past week</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<ChartContainer config={chartConfig} className="h-[200px] w-full">
+						<ChartContainer config={chartConfig} className="aspect-auto h-[200px]">
 							<BarChart data={metrics.dailyRevenue}>
 								<CartesianGrid strokeDasharray="3 3" vertical={false} />
 								<XAxis
