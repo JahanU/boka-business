@@ -50,7 +50,7 @@ describe('App Component', () => {
         render(<App />);
 
         await waitFor(() => {
-            expect(screen.getByPlaceholderText(/you@barbershop.com/i)).toBeInTheDocument();
+            expect(screen.getByPlaceholderText(/you@yourbusiness.com/i)).toBeInTheDocument();
         });
     });
 
@@ -76,7 +76,7 @@ describe('App Component', () => {
         render(<App />);
 
         await waitFor(() => {
-            expect(screen.getByPlaceholderText(/you@barbershop.com/i)).toBeInTheDocument();
+            expect(screen.getByPlaceholderText(/you@yourbusiness.com/i)).toBeInTheDocument();
         });
     });
 });

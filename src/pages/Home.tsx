@@ -35,7 +35,7 @@ function HomePage() {
 						Boka Businesses
 					</p>
 					<h1 className="text-4xl font-bold leading-tight sm:text-5xl">
-						Manage your barbershop in one place.
+						Manage your business in one place.
 					</h1>
 					<p className="max-w-2xl text-lg text-muted-foreground">
 						A centralized dashboard for staff to view bookings, monitor payments, and keep the team
