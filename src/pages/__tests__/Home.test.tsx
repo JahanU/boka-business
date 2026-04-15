@@ -11,7 +11,7 @@ describe('HomePage', () => {
 		);
 
 		expect(
-			screen.getByText(/manage your barbershop in one place/i),
+			screen.getByText(/manage your business in one place/i),
 		).toBeInTheDocument();
 
 		const loginLink = screen.getByRole('link', { name: /go to staff login/i });

@@ -48,7 +48,7 @@ export const appointmentService = {
 		return true;
 	},
 
-	async cancel(appointment: Appointment, staffEmail: string): Promise<boolean> {
+	async cancel(appointment: Appointment, staffEmail: string, businessName: string): Promise<boolean> {
 		// 1. Send the cancellation email via Netlify function
 		try {
 			const response = await fetch('/.netlify/functions/cancel-booking', {
@@ -60,6 +60,7 @@ export const appointmentService = {
 					serviceName: appointment.service_name,
 					appointmentDate: appointment.appointment_date,
 					staffEmail,
+					businessName,
 				}),
 			});
 
