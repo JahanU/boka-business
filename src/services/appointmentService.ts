@@ -73,21 +73,7 @@ export const appointmentService = {
 			console.error('Error calling cancel-booking function:', error);
 		}
 
-		// 2. Delete the appointment from Supabase
-		return this.delete(appointment.id);
+		// 2. Update the appointment status to cancelled in Supabase
+		return this.updateStatus(appointment.id, 'cancelled');
 	},
-
-	async delete(id: string): Promise<boolean> {
-		const { error } = await supabase
-			.from('appointments')
-			.delete()
-			.eq('id', id);
-
-		if (error) {
-			console.error('Error deleting appointment:', error);
-			return false;
-		}
-
-		return true;
-	}
 };
