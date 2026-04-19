@@ -40,12 +40,12 @@ describe('appointmentService', () => {
         it('calls netlify function to send cancel email', async () => {
             const mockFrom = vi.mocked(supabase.from);
 
-            const mockDeleteQuery = {
-                delete: vi.fn().mockReturnThis(),
+            const mockUpdateQuery = {
+                update: vi.fn().mockReturnThis(),
                 eq: vi.fn().mockResolvedValue({ error: null }),
             };
 
-            mockFrom.mockReturnValue(mockDeleteQuery as unknown as ReturnType<typeof supabase.from>);
+            mockFrom.mockReturnValue(mockUpdateQuery as unknown as ReturnType<typeof supabase.from>);
 
             vi.mocked(fetch).mockResolvedValueOnce({
                 ok: true,
@@ -59,16 +59,19 @@ describe('appointmentService', () => {
                 body: expect.stringContaining(mockStaffEmail),
             }));
             expect(result).toBe(true);
+            expect(mockUpdateQuery.update).toHaveBeenCalledWith(
+                expect.objectContaining({ status: 'cancelled' })
+            );
         });
 
-        it('continues to delete appointment even if fetch fails', async () => {
+        it('continues to cancel appointment even if fetch fails', async () => {
             const mockFrom = vi.mocked(supabase.from);
-            const mockDeleteQuery = {
-                delete: vi.fn().mockReturnThis(),
+            const mockUpdateQuery = {
+                update: vi.fn().mockReturnThis(),
                 eq: vi.fn().mockResolvedValue({ error: null }),
             };
 
-            mockFrom.mockReturnValue(mockDeleteQuery as unknown as ReturnType<typeof supabase.from>);
+            mockFrom.mockReturnValue(mockUpdateQuery as unknown as ReturnType<typeof supabase.from>);
 
             vi.mocked(fetch).mockResolvedValueOnce({
                 ok: false,
@@ -80,7 +83,9 @@ describe('appointmentService', () => {
 
             expect(result).toBe(true);
             expect(fetch).toHaveBeenCalled();
-            expect(mockDeleteQuery.delete).toHaveBeenCalled();
+            expect(mockUpdateQuery.update).toHaveBeenCalledWith(
+                expect.objectContaining({ status: 'cancelled' })
+            );
         });
     });
 });

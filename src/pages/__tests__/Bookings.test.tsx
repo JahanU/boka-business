@@ -7,7 +7,6 @@ import { Appointment } from '@/types';
 const mockUseAuth = vi.fn();
 const mockGetByBusinessId = vi.fn();
 const mockCancel = vi.fn();
-const mockDelete = vi.fn();
 
 vi.mock('@/contexts/AuthContext', () => ({
 	useAuth: () => mockUseAuth(),
@@ -17,7 +16,6 @@ vi.mock('@/services/appointmentService', () => ({
 	appointmentService: {
 		getByBusinessId: (...args: unknown[]) => mockGetByBusinessId(...args),
 		cancel: (...args: unknown[]) => mockCancel(...args),
-		delete: (...args: unknown[]) => mockDelete(...args),
 	},
 }));
 
@@ -70,10 +68,10 @@ describe('BookingsPage', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.useFakeTimers({ toFake: ['Date'] });
-		vi.setSystemTime(new Date('2026-01-04T15:00:00Z'));
+		// Use a local string without 'Z' to mock local time parsing correctly
+		vi.setSystemTime(new Date('2026-01-04T15:00:00'));
 		mockGetByBusinessId.mockResolvedValue([]);
 		mockCancel.mockResolvedValue(true);
-		mockDelete.mockResolvedValue(true);
 	});
 
 	afterEach(() => {
@@ -101,7 +99,7 @@ describe('BookingsPage', () => {
 		expect(screen.getByText('Manage your upcoming appointments and history.')).toBeInTheDocument();
 	});
 
-	it('shows empty states for upcoming and past tabs', async () => {
+	it('shows empty states for upcoming, past, and cancelled tabs', async () => {
 		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockResolvedValue([]);
 		const user = userEvent.setup({ delay: null });
@@ -114,13 +112,20 @@ describe('BookingsPage', () => {
 
 		const pastTab = screen.getByRole('tab', { name: /past/i });
 		await user.click(pastTab);
-
 		expect(screen.getByText('No past bookings found')).toBeInTheDocument();
+
+		const cancelledTab = screen.getByRole('tab', { name: /cancelled/i });
+		await user.click(cancelledTab);
+		expect(screen.getByText('No cancelled bookings found')).toBeInTheDocument();
 	});
 
-	it('categorizes appointments correctly into Upcoming and Past tabs', async () => {
+	it('categorizes appointments correctly into Upcoming, Past, and Cancelled tabs', async () => {
+		const bookingsWithCancelled = [
+			...mockBookings,
+			{ ...mockBookings[0], id: 'booking-4', customer_name: 'Cancelled Carl', status: 'cancelled' } as Appointment
+		];
 		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
-		mockGetByBusinessId.mockResolvedValue(mockBookings);
+		mockGetByBusinessId.mockResolvedValue(bookingsWithCancelled);
 		const user = userEvent.setup({ delay: null });
 
 		render(<BookingsPage />);
@@ -130,6 +135,7 @@ describe('BookingsPage', () => {
 			expect(screen.getByText('Today Future Bob')).toBeInTheDocument();
 			expect(screen.getByText('Upcoming John')).toBeInTheDocument();
 			expect(screen.queryByText('Today Past Jane')).not.toBeInTheDocument();
+			expect(screen.queryByText('Cancelled Carl')).not.toBeInTheDocument();
 		});
 
 		const pastTab = screen.getByRole('tab', { name: /past/i });
@@ -138,6 +144,12 @@ describe('BookingsPage', () => {
 		// Past tab should show Today Past Jane
 		expect(screen.getByText('Today Past Jane')).toBeInTheDocument();
 		expect(screen.queryByText('Today Future Bob')).not.toBeInTheDocument();
+
+		const cancelledTab = screen.getByRole('tab', { name: /cancelled/i });
+		await user.click(cancelledTab);
+
+		// Cancelled tab should show Cancelled Carl
+		expect(screen.getByText('Cancelled Carl')).toBeInTheDocument();
 		expect(screen.queryByText('Upcoming John')).not.toBeInTheDocument();
 	});
 
@@ -209,7 +221,7 @@ describe('BookingsPage', () => {
 		});
 	});
 
-	it('calls delete service when delete button is clicked and confirmed', async () => {
+	it('calls cancel service when cancel button is clicked and confirmed', async () => {
 		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockResolvedValue(mockBookings);
 		const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
