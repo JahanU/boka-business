@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { appointmentService } from "@/services/appointmentService";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Appointment } from "@/types";
-import { Loader2, Calendar, Clock, User, Phone, Mail, Trash2, Scissors, History } from "lucide-react";
+import { Loader2, Calendar, Clock, User, Phone, Mail, Trash2, Scissors, History, XCircle } from "lucide-react";
 import { format, isBefore } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,10 +27,14 @@ export default function BookingsPage() {
 		fetchBookings();
 	}, [business?.id]);
 
-	const { upcomingBookings, pastBookings } = useMemo(() => {
+	const { upcomingBookings, pastBookings, cancelledBookings } = useMemo(() => {
 		const now = new Date();
 		return bookings.reduce(
 			(acc, booking) => {
+				if (booking.status === 'cancelled') {
+					acc.cancelledBookings.push(booking);
+					return acc;
+				}
 				const bookingDateTime = new Date(`${booking.appointment_date}T${booking.appointment_time}`);
 				if (isBefore(bookingDateTime, now)) {
 					acc.pastBookings.push(booking);
@@ -39,7 +43,7 @@ export default function BookingsPage() {
 				}
 				return acc;
 			},
-			{ upcomingBookings: [] as Appointment[], pastBookings: [] as Appointment[] }
+			{ upcomingBookings: [] as Appointment[], pastBookings: [] as Appointment[], cancelledBookings: [] as Appointment[] }
 		);
 	}, [bookings]);
 
@@ -48,7 +52,7 @@ export default function BookingsPage() {
 
 		const success = await appointmentService.cancel(appointment, staff!.email, business!.name);
 		if (success) {
-			setBookings(prev => prev.filter(b => b.id !== appointment.id));
+			setBookings(prev => prev.map(b => b.id === appointment.id ? { ...b, status: 'cancelled' } : b));
 		} else {
 			alert('Failed to delete booking. Please try again.');
 		}
@@ -62,22 +66,26 @@ export default function BookingsPage() {
 		);
 	}
 
-	const renderBookingList = (list: Appointment[], type: 'upcoming' | 'past') => {
+	const renderBookingList = (list: Appointment[], type: 'upcoming' | 'past' | 'cancelled') => {
 		if (list.length === 0) {
 			return (
 				<div className="rounded-xl border border-dashed border-muted p-12 text-center bg-muted/20">
 					<div className="mx-auto w-12 h-12 rounded-full bg-muted/30 flex items-center justify-center mb-4">
 						{type === 'upcoming' ? (
 							<Calendar className="h-6 w-6 text-muted-foreground" />
-						) : (
+						) : type === 'past' ? (
 							<History className="h-6 w-6 text-muted-foreground" />
+						) : (
+							<XCircle className="h-6 w-6 text-muted-foreground" />
 						)}
 					</div>
 					<h3 className="text-lg font-medium mb-1">No {type} bookings found</h3>
 					<p className="text-sm text-muted-foreground max-w-xs mx-auto">
 						{type === 'upcoming'
 							? "When customers book appointments, they will appear here."
-							: "Appointment history will appear here once it's in the past."}
+							: type === 'past'
+								? "Appointment history will appear here once it's in the past."
+								: "Cancelled appointments will appear here."}
 					</p>
 				</div>
 			);
@@ -96,7 +104,7 @@ export default function BookingsPage() {
 					.map((booking) => (
 						<div
 							key={booking.id}
-							className={`group relative flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-xl border bg-background transition-all hover:shadow-md hover:border-primary/20 ${type === 'past' ? 'opacity-70 grayscale-[0.2] bg-muted/30' : ''
+							className={`group relative flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-xl border bg-background transition-all hover:shadow-md hover:border-primary/20 ${type === 'past' ? 'opacity-70 grayscale-[0.2] bg-muted/30' : type === 'cancelled' ? 'opacity-70 border-destructive/20 bg-destructive/5' : ''
 								}`}
 						>
 							<div className="space-y-3 flex-1">
@@ -185,6 +193,7 @@ export default function BookingsPage() {
 				<TabsList className="mb-4">
 					<TabsTrigger value="upcoming">Upcoming</TabsTrigger>
 					<TabsTrigger value="past">Past</TabsTrigger>
+					<TabsTrigger value="cancelled">Cancelled</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value="upcoming">
@@ -207,6 +216,18 @@ export default function BookingsPage() {
 						</CardHeader>
 						<CardContent>
 							{renderBookingList(pastBookings, 'past')}
+						</CardContent>
+					</Card>
+				</TabsContent>
+
+				<TabsContent value="cancelled">
+					<Card className="border-none shadow-sm bg-card/50 backdrop-blur-sm">
+						<CardHeader>
+							<CardTitle>Cancelled Bookings</CardTitle>
+							<CardDescription>Appointments that have been cancelled.</CardDescription>
+						</CardHeader>
+						<CardContent>
+							{renderBookingList(cancelledBookings, 'cancelled')}
 						</CardContent>
 					</Card>
 				</TabsContent>
