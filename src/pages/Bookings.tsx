@@ -31,7 +31,7 @@ export default function BookingsPage() {
 		const now = new Date();
 		return bookings.reduce(
 			(acc, booking) => {
-				if (booking.status === 'cancelled') {
+				if (booking.status === 'cancelled' || booking.status === 'expired') {
 					acc.cancelledBookings.push(booking);
 					return acc;
 				}
