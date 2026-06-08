@@ -36,7 +36,7 @@ export interface Appointment {
     appointment_time: string;
     duration_minutes: number;
     // status: 'pending' | 'confirmed' | 'completed' | 'cancelled' ;
-    status: 'pending_payment' | 'confirmed' | 'cancelled' | 'completed' | 'expired';
+    status: 'pending_payment' | 'confirmed' | 'cancelled' | 'completed' | 'expired' | 'pending';
     notes?: string;
     created_at: string;
     updated_at: string;
