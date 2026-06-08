@@ -21,6 +21,7 @@ export default function BookingsPage() {
 			setLoading(true);
 			const data = await appointmentService.getByBusinessId(business.id);
 			setBookings(data);
+			console.log(data);
 			setLoading(false);
 		};
 
@@ -31,7 +32,8 @@ export default function BookingsPage() {
 		const now = new Date();
 		return bookings.reduce(
 			(acc, booking) => {
-				if (booking.status === 'cancelled') {
+				console.info(booking.status);
+				if (booking.status === 'cancelled' || booking.status === 'expired') {
 					acc.cancelledBookings.push(booking);
 					return acc;
 				}
