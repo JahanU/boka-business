@@ -42,7 +42,7 @@ const mockAppointments: Appointment[] = [
 		service_id: 'service-2',
 		service_name: 'Beard Trim',
 		service_price: 20,
-		payment_status: 'pay_in_store',
+		payment_status: 'paid_online',
 		appointment_date: new Date().toISOString().split('T')[0],
 		appointment_time: '23:00:00',
 		duration_minutes: 20,
@@ -138,20 +138,18 @@ describe('DashboardPage', () => {
 
 		await waitFor(() => {
 			expect(screen.getByText('Weekly Insights')).toBeInTheDocument();
-			expect(screen.getByText('Payment Status')).toBeInTheDocument();
 			expect(screen.getByText('Popular Services')).toBeInTheDocument();
 		});
 	});
 
-	it('displays payment breakdown', async () => {
+	it('does not display the removed payment breakdown', async () => {
 		mockUseAuth.mockReturnValue({ business: { id: 'biz-1', name: "ali's_barber" }, loading: false });
 		mockGetByBusinessId.mockResolvedValue(mockAppointments);
 
 		render(<DashboardPage />);
 
 		await waitFor(() => {
-			expect(screen.getByText('Paid Online')).toBeInTheDocument();
-			expect(screen.getByText('Pay in Store')).toBeInTheDocument();
+			expect(screen.queryByText('Payment Status')).not.toBeInTheDocument();
 		});
 	});
 

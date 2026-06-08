@@ -4,7 +4,6 @@ import { startOfDay, endOfDay, startOfWeek, endOfWeek, subWeeks, format, parseIS
 export interface DashboardMetrics {
     todayRevenue: number;
     todayRevenueOnline: number;
-    todayRevenueInStore: number;
     todayBookingsCount: number;
     upcomingTodayCount: number;
     upcomingTodayRevenue: number;
@@ -12,10 +11,6 @@ export interface DashboardMetrics {
     weeklyBookingsCount: number;
     weeklyRevenue: number;
     weeklyRevenueChange: number;
-    paymentStatusSummary: {
-        paidOnline: number;
-        payInStore: number;
-    };
     popularServices: Array<{ name: string; count: number }>;
     dailyRevenue: Array<{ date: string; revenue: number }>;
     todaySchedule: Appointment[];
@@ -38,7 +33,7 @@ export function calculateDashboardMetrics(appointments: Appointment[]): Dashboar
 
     const upcomingToday = todayAppointments.filter(apt => {
         const aptDateTime = parseISO(`${apt.appointment_date}T${apt.appointment_time}`);
-        return aptDateTime > now && (apt.status === 'confirmed' || apt.status === 'pending');
+        return aptDateTime > now && (apt.status === 'confirmed' || apt.status === 'pending_payment');
     });
 
     const weeklyAppointments = appointments.filter(apt => {
@@ -51,45 +46,29 @@ export function calculateDashboardMetrics(appointments: Appointment[]): Dashboar
         return aptDate >= lastWeekStart && aptDate <= lastWeekEnd;
     });
 
+    const revenueStatuses: Array<Appointment['status']> = ['completed', 'confirmed'];
+    const isPaidRevenueAppointment = (apt: Appointment) =>
+        revenueStatuses.includes(apt.status) && apt.payment_status === 'paid_online';
+
     // Calculate today's revenue
     const todayRevenue = todayAppointments
-        .filter(apt => apt.status === 'completed' || apt.status === 'confirmed')
+        .filter(isPaidRevenueAppointment)
         .reduce((sum, apt) => sum + Number(apt.service_price), 0);
 
-    const todayRevenueOnline = todayAppointments
-        .filter(apt => (apt.status === 'completed' || apt.status === 'confirmed') && apt.payment_status === 'paid_online')
-        .reduce((sum, apt) => sum + Number(apt.service_price), 0);
-
-    const todayRevenueInStore = todayRevenue - todayRevenueOnline;
+    const todayRevenueOnline = todayRevenue;
 
     // Calculate weekly metrics
     const weeklyRevenue = weeklyAppointments
-        .filter(apt => apt.status === 'completed' || apt.status === 'confirmed')
+        .filter(isPaidRevenueAppointment)
         .reduce((sum, apt) => sum + Number(apt.service_price), 0);
 
     const lastWeekRevenue = lastWeekAppointments
-        .filter(apt => apt.status === 'completed' || apt.status === 'confirmed')
+        .filter(isPaidRevenueAppointment)
         .reduce((sum, apt) => sum + Number(apt.service_price), 0);
 
     const weeklyRevenueChange = lastWeekRevenue > 0
         ? ((weeklyRevenue - lastWeekRevenue) / lastWeekRevenue) * 100
         : 0;
-
-    // Payment status summary (for the week)
-    const paymentStatusSummary = weeklyAppointments
-        .filter(apt => apt.status === 'completed' || apt.status === 'confirmed')
-        .reduce(
-            (acc, apt) => {
-                const price = Number(apt.service_price);
-                if (apt.payment_status === 'paid_online') {
-                    acc.paidOnline += price;
-                } else {
-                    acc.payInStore += price;
-                }
-                return acc;
-            },
-            { paidOnline: 0, payInStore: 0 }
-        );
 
     // Popular services
     const serviceCounts = weeklyAppointments.reduce((acc, apt) => {
@@ -114,7 +93,7 @@ export function calculateDashboardMetrics(appointments: Appointment[]): Dashboar
         const dayRevenue = appointments
             .filter(apt => {
                 const aptDate = parseISO(apt.appointment_date);
-                return aptDate >= dayStart && aptDate <= dayEnd && (apt.status === 'completed' || apt.status === 'confirmed');
+                return aptDate >= dayStart && aptDate <= dayEnd && isPaidRevenueAppointment(apt);
             })
             .reduce((sum, apt) => sum + Number(apt.service_price), 0);
 
@@ -144,15 +123,13 @@ export function calculateDashboardMetrics(appointments: Appointment[]): Dashboar
     return {
         todayRevenue,
         todayRevenueOnline,
-        todayRevenueInStore,
         todayBookingsCount: todayAppointments.length,
         upcomingTodayCount: upcomingToday.length,
-        upcomingTodayRevenue: upcomingToday.reduce((sum, apt) => sum + Number(apt.service_price), 0),
+        upcomingTodayRevenue: upcomingToday.filter(apt => apt.payment_status === 'paid_online').reduce((sum, apt) => sum + Number(apt.service_price), 0),
         nextAppointment: sortedUpcoming[0] || null,
         weeklyBookingsCount: weeklyAppointments.length,
         weeklyRevenue,
         weeklyRevenueChange,
-        paymentStatusSummary,
         popularServices,
         dailyRevenue,
         todaySchedule,

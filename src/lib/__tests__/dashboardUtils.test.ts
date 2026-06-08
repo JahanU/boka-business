@@ -31,7 +31,7 @@ describe('dashboardUtils', () => {
                 service_id: 'service-2',
                 service_name: 'Beard Trim',
                 service_price: 20,
-                payment_status: 'pay_in_store',
+                payment_status: 'paid_online',
                 appointment_date: new Date().toISOString().split('T')[0], // Today
                 appointment_time: '23:00:00', // Future time today
                 duration_minutes: 20,
@@ -65,11 +65,10 @@ describe('dashboardUtils', () => {
             expect(metrics.todayRevenue).toBe(50);
         });
 
-        it('separates online and in-store revenue', () => {
+        it('tracks online revenue', () => {
             const metrics = calculateDashboardMetrics(mockAppointments);
 
-            expect(metrics.todayRevenueOnline).toBe(30); // Only apt-1
-            expect(metrics.todayRevenueInStore).toBe(20); // Only apt-2
+            expect(metrics.todayRevenueOnline).toBe(50);
         });
 
         it('counts today\'s bookings', () => {
@@ -89,15 +88,6 @@ describe('dashboardUtils', () => {
             const metrics = calculateDashboardMetrics(mockAppointments);
 
             expect(metrics.weeklyBookingsCount).toBeGreaterThanOrEqual(2);
-        });
-
-        it('calculates payment status summary', () => {
-            const metrics = calculateDashboardMetrics(mockAppointments);
-
-            expect(metrics.paymentStatusSummary).toHaveProperty('paidOnline');
-            expect(metrics.paymentStatusSummary).toHaveProperty('payInStore');
-            expect(typeof metrics.paymentStatusSummary.paidOnline).toBe('number');
-            expect(typeof metrics.paymentStatusSummary.payInStore).toBe('number');
         });
 
         it('identifies popular services', () => {

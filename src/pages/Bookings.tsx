@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { appointmentService } from "@/services/appointmentService";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Appointment } from "@/types";
@@ -119,9 +118,6 @@ export default function BookingsPage() {
 										<div className="text-lg font-bold text-foreground">
 											£{Number(booking.service_price).toFixed(2)}
 										</div>
-										<Badge variant={booking.payment_status === 'paid_online' ? 'info' : 'secondary'} className="text-[10px] h-5 uppercase flex-shrink-0">
-											{booking.payment_status?.replaceAll('_', ' ')}
-										</Badge>
 									</div>
 								</div>
 

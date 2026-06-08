@@ -28,7 +28,6 @@ A modern, full-featured business management platform for salons and barbershops.
 
 ### 💳 Payment Integration
 - **Stripe Integration**: Secure online payment processing
-- **Pay in Store**: Flexible payment options for customers
 - **Payment Status Tracking**: Clear indicators for paid and pending payments
 
 ### 📧 Notifications

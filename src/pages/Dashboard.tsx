@@ -15,7 +15,6 @@ import {
 	Clock,
 	PoundSterling,
 	CreditCard,
-	Wallet,
 	Loader2,
 	ArrowRight
 } from "lucide-react";
@@ -82,18 +81,12 @@ export default function DashboardPage() {
 						<CardTitle className="text-3xl">£{metrics.todayRevenue.toFixed(2)}</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="text-xs text-muted-foreground space-y-1">
+						<div className="text-xs text-muted-foreground">
 							<div className="flex justify-between">
 								<span className="flex items-center gap-1">
 									<CreditCard className="h-3 w-3" /> Online
 								</span>
 								<span className="font-medium">£{metrics.todayRevenueOnline.toFixed(2)}</span>
-							</div>
-							<div className="flex justify-between">
-								<span className="flex items-center gap-1">
-									<Wallet className="h-3 w-3" /> In Store
-								</span>
-								<span className="font-medium">£{metrics.todayRevenueInStore.toFixed(2)}</span>
 							</div>
 						</div>
 					</CardContent>
@@ -189,34 +182,13 @@ export default function DashboardPage() {
 					</CardContent>
 				</Card>
 
-				{/* Payment Status & Popular Services */}
+				{/* Popular Services */}
 				<Card>
 					<CardHeader>
 						<CardTitle>Weekly Insights</CardTitle>
-						<CardDescription>Payment breakdown and popular services</CardDescription>
+						<CardDescription>Popular services for the week</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
-						{/* Payment Status */}
-						<div>
-							<p className="text-sm font-medium mb-2">Payment Status</p>
-							<div className="space-y-2">
-								<div className="flex justify-between items-center">
-									<span className="text-sm text-muted-foreground flex items-center gap-2">
-										<CreditCard className="h-4 w-4" />
-										Paid Online
-									</span>
-									<span className="text-sm font-medium">£{metrics.paymentStatusSummary.paidOnline.toFixed(2)}</span>
-								</div>
-								<div className="flex justify-between items-center">
-									<span className="text-sm text-muted-foreground flex items-center gap-2">
-										<Wallet className="h-4 w-4" />
-										Pay in Store
-									</span>
-									<span className="text-sm font-medium">£{metrics.paymentStatusSummary.payInStore.toFixed(2)}</span>
-								</div>
-							</div>
-						</div>
-
 						{/* Popular Services */}
 						<div>
 							<p className="text-sm font-medium mb-2">Popular Services</p>
@@ -275,14 +247,6 @@ export default function DashboardPage() {
 											<div className="text-sm font-medium">£{Number(apt.service_price).toFixed(2)}</div>
 
 										</div>
-									</div>
-									<div className="flex items-center gap-3">
-										<Badge
-											variant={apt.payment_status === 'paid_online' ? 'default' : 'secondary'}
-											className="text-xs"
-										>
-											{apt.payment_status === 'paid_online' ? 'Paid' : 'Pay in store'}
-										</Badge>
 									</div>
 								</div>
 							))}
