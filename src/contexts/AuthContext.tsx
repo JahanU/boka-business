@@ -18,6 +18,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function getAuthRedirectUrl() {
+	const appUrl = import.meta.env.VITE_APP_URL?.trim() || window.location.origin;
+	return `${appUrl.replace(/\/+$/, '')}/reset-password`;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
 	const [session, setSession] = useState<Session | null>(null);
@@ -93,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	const resetPassword = async (email: string) => {
 		const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-			redirectTo: `${window.location.origin}/reset-password`,
+			redirectTo: getAuthRedirectUrl(),
 		});
 		return { error };
 	};
