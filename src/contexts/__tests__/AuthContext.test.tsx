@@ -63,7 +63,6 @@ function Harness({ onReady }: { onReady: (context: ReturnType<typeof useAuth>) =
 describe('AuthContext', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.unstubAllEnvs();
 		mockGetSession.mockResolvedValue({ data: { session: null } });
 		mockOnAuthStateChange.mockReturnValue({
 			data: { subscription: { unsubscribe: vi.fn() } },
@@ -155,25 +154,5 @@ describe('AuthContext', () => {
 
 		await context.signOut();
 		expect(mockSignOut).toHaveBeenCalled();
-	});
-
-	it('uses the configured app URL for password reset redirects', async () => {
-		vi.stubEnv('VITE_APP_URL', 'https://business.example.com/');
-		const onReady = vi.fn();
-
-		render(
-			<AuthProvider>
-				<Harness onReady={onReady} />
-			</AuthProvider>,
-		);
-
-		await waitFor(() => expect(onReady).toHaveBeenCalled());
-		const context = onReady.mock.calls[0][0];
-
-		await context.resetPassword('owner@example.com');
-
-		expect(mockResetPasswordForEmail).toHaveBeenCalledWith('owner@example.com', {
-			redirectTo: 'https://business.example.com/reset-password',
-		});
 	});
 });

@@ -63,7 +63,6 @@ A modern, full-featured business management platform for salons and barbershops.
     # Supabase
     VITE_SUPABASE_URL=
     VITE_SUPABASE_ANON_KEY=
-    VITE_APP_URL=
 
     # Email (GMAIL)
     GMAIL_USER=
@@ -77,16 +76,16 @@ A modern, full-featured business management platform for salons and barbershops.
    cat supabase-migration.sql
    ```
 
-   Set `VITE_APP_URL` to the deployed app origin: `https://boka-business.netlify.app`.
-   In Supabase Auth URL Configuration, set the Site URL to the same deployed origin and add
-   `https://boka-business.netlify.app/reset-password` to the redirect URLs.
+5. **Configure Supabase Auth**
+   
+   In Supabase Auth URL Configuration, set the Site URL to your deployed app origin and add the password reset redirect URL (e.g., `https://boka-business.netlify.app/reset-password`).
 
-5. **Start the development server**
+6. **Start the development server**
    ```bash
    npm run dev
    ```
 
-6. **Run Netlify functions locally** (in a separate terminal)
+7. **Run Netlify functions locally** (in a separate terminal)
    ```bash
    npx netlify dev
    ```
@@ -96,7 +95,7 @@ A modern, full-featured business management platform for salons and barbershops.
 - `npm run dev` - Start Vite development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
-- `npm test` - Run tests in watch mode
+- `npm run test` - Run tests in watch mode
 - `npm run test:coverage` - Generate test coverage report
 - `npm run lint` - Run ESLint
 - `npm run typecheck` - Run TypeScript type checking
