@@ -163,6 +163,64 @@ describe('dashboardUtils', () => {
             expect(metrics.todayRevenue).toBe(50); // Still 30 + 20
         });
 
+        it('excludes cancelled and expired appointments from today\'s schedule', () => {
+            const appointmentsWithCancelledAndExpired: Appointment[] = [
+                {
+                    id: 'apt-active',
+                    business_id: 'biz-1',
+                    staff_id: 'staff-1',
+                    customer_name: 'Active Customer',
+                    service_id: 'service-1',
+                    service_name: 'Haircut',
+                    service_price: 30,
+                    payment_status: 'paid_online',
+                    appointment_date: new Date().toISOString().split('T')[0],
+                    appointment_time: '09:00:00',
+                    duration_minutes: 30,
+                    status: 'confirmed',
+                    created_at: '2026-01-01T00:00:00Z',
+                    updated_at: '2026-01-01T00:00:00Z',
+                },
+                {
+                    id: 'apt-cancelled',
+                    business_id: 'biz-1',
+                    staff_id: 'staff-1',
+                    customer_name: 'Cancelled Customer',
+                    service_id: 'service-1',
+                    service_name: 'Haircut',
+                    service_price: 30,
+                    payment_status: 'paid_online',
+                    appointment_date: new Date().toISOString().split('T')[0],
+                    appointment_time: '10:00:00',
+                    duration_minutes: 30,
+                    status: 'cancelled',
+                    created_at: '2026-01-01T00:00:00Z',
+                    updated_at: '2026-01-01T00:00:00Z',
+                },
+                {
+                    id: 'apt-expired',
+                    business_id: 'biz-1',
+                    staff_id: 'staff-1',
+                    customer_name: 'Expired Customer',
+                    service_id: 'service-1',
+                    service_name: 'Haircut',
+                    service_price: 30,
+                    payment_status: 'paid_online',
+                    appointment_date: new Date().toISOString().split('T')[0],
+                    appointment_time: '11:00:00',
+                    duration_minutes: 30,
+                    status: 'expired',
+                    created_at: '2026-01-01T00:00:00Z',
+                    updated_at: '2026-01-01T00:00:00Z',
+                },
+            ];
+
+            const metrics = calculateDashboardMetrics(appointmentsWithCancelledAndExpired);
+
+            expect(metrics.todaySchedule).toHaveLength(1);
+            expect(metrics.todaySchedule[0].id).toBe('apt-active');
+        });
+
         it('sorts popular services by count descending', () => {
             const appointmentsWithMultipleServices: Appointment[] = [
                 {

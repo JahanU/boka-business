@@ -133,7 +133,7 @@ export function calculateDashboardMetrics(appointments: Appointment[]): Dashboar
 
     // Today's schedule (sorted by time)
     const todaySchedule = [...todayAppointments]
-        .filter(apt => apt.status !== 'cancelled')
+        .filter(apt => apt.status !== 'cancelled' && apt.status != 'expired')
         .sort((a, b) => {
             const timeA = parseISO(`${a.appointment_date}T${a.appointment_time}`);
             const timeB = parseISO(`${b.appointment_date}T${b.appointment_time}`);

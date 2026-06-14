@@ -153,6 +153,27 @@ describe('BookingsPage', () => {
 		expect(screen.queryByText('Upcoming John')).not.toBeInTheDocument();
 	});
 
+	it('categorizes expired appointments into the Cancelled/Expired tab', async () => {
+		const bookingsWithExpired = [
+			...mockBookings,
+			{ ...mockBookings[0], id: 'booking-expired', customer_name: 'Expired Emily', status: 'expired' } as Appointment
+		];
+		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
+		mockGetByBusinessId.mockResolvedValue(bookingsWithExpired);
+		const user = userEvent.setup({ delay: null });
+
+		render(<BookingsPage />);
+
+		await waitFor(() => {
+			expect(screen.queryByText('Expired Emily')).not.toBeInTheDocument();
+		});
+
+		const cancelledTab = screen.getByRole('tab', { name: /cancelled/i });
+		await user.click(cancelledTab);
+
+		expect(screen.getByText('Expired Emily')).toBeInTheDocument();
+	});
+
 	it('sorts upcoming appointments by date ascending', async () => {
 		mockUseAuth.mockReturnValue({ business: { id: 'biz-123' }, staff: { email: 'staff@test.com' } });
 		mockGetByBusinessId.mockResolvedValue(mockBookings);

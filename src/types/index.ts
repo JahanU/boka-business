@@ -31,11 +31,12 @@ export interface Appointment {
     service_id: string;
     service_name: string;
     service_price: number;
-    payment_status: 'paid_online' | 'pay_in_store';
+    payment_status: 'paid_online' | 'pay_in_store' | 'pending_online';
     appointment_date: string;
     appointment_time: string;
     duration_minutes: number;
-    status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+    // status: 'pending' | 'confirmed' | 'completed' | 'cancelled' ;
+    status: 'pending_payment' | 'confirmed' | 'cancelled' | 'completed' | 'expired' | 'pending';
     notes?: string;
     created_at: string;
     updated_at: string;

@@ -17,7 +17,6 @@ export default function BookingsPage() {
 	useEffect(() => {
 		const fetchBookings = async () => {
 			if (!business?.id) return;
-
 			setLoading(true);
 			const data = await appointmentService.getByBusinessId(business.id);
 			setBookings(data);
@@ -31,7 +30,7 @@ export default function BookingsPage() {
 		const now = new Date();
 		return bookings.reduce(
 			(acc, booking) => {
-				if (booking.status === 'cancelled') {
+				if (booking.status === 'cancelled' || booking.status === 'expired') {
 					acc.cancelledBookings.push(booking);
 					return acc;
 				}
@@ -117,8 +116,8 @@ export default function BookingsPage() {
 										<div className="text-lg font-bold text-foreground">
 											£{Number(booking.service_price).toFixed(2)}
 										</div>
-										<Badge variant={booking.payment_status === 'paid_online' ? 'info' : 'secondary'} className="text-[10px] h-5 uppercase flex-shrink-0">
-											{booking.payment_status?.replaceAll('_', ' ')}
+										<Badge variant={(booking.payment_status === 'paid_online' ? 'info' : 'warning')} className="text-[10px] h-5 uppercase flex-shrink-0">
+											{booking.status}
 										</Badge>
 									</div>
 								</div>
