@@ -6,6 +6,7 @@
     "@boka/shared": "*",
     "@expo/vector-icons": "^14.0.0",
     "@react-native-community/datetimepicker": "^8.5.1",
+    "@react-navigation/bottom-tabs": "^7.6.1",
     "@react-navigation/native": "^7.1.6",
     "@supabase/supabase-js": "^2.89.0",
     "buffer": "^6.0.3",
