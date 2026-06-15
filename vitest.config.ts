@@ -13,6 +13,12 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
     globals: true,
+    exclude: [
+      'node_modules/**',
+      'apps/mobile/**',
+      'packages/shared/dist/**',
+      'dist/**',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

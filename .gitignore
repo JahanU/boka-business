@@ -15,6 +15,9 @@ dist-ssr
 # Test coverage
 coverage
 
+# Shared package build output
+packages/shared/dist
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
