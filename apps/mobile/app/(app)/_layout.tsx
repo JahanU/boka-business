@@ -1,7 +1,18 @@
-import { Redirect, Tabs } from 'expo-router';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { Redirect } from 'expo-router';
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { DynamicColorIOS } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { ActivityIndicator, View } from 'react-native';
+
+const tabLabelColor = DynamicColorIOS({
+	dark: '#ffffff',
+	light: '#000000',
+});
+
+const tabTintColor = DynamicColorIOS({
+	dark: '#2b8bf7',
+	light: '#2b8bf7',
+});
 
 export default function AppLayout() {
 	const { user, loading } = useAuth();
@@ -19,39 +30,31 @@ export default function AppLayout() {
 	}
 
 	return (
-		<Tabs
-			screenOptions={{
-				headerShown: false,
-				tabBarStyle: {
-					backgroundColor: '#16202b',
-					borderTopColor: '#3a4f64',
-					borderTopWidth: 1,
-				},
-				tabBarActiveTintColor: '#2b8bf7',
-				tabBarInactiveTintColor: '#8fa4b8',
-			}}
+		<NativeTabs
+			tintColor={tabTintColor}
+			labelStyle={{ color: tabLabelColor }}
 		>
-			<Tabs.Screen
-				name="index"
-				options={{
-					title: 'Dashboard',
-					tabBarIcon: ({ color, size }) => <Ionicons name="stats-chart-outline" size={size} color={color} />,
-				}}
-			/>
-			<Tabs.Screen
-				name="bookings"
-				options={{
-					title: 'Bookings',
-					tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" size={size} color={color} />,
-				}}
-			/>
-			<Tabs.Screen
-				name="settings"
-				options={{
-					title: 'Settings',
-					tabBarIcon: ({ color, size }) => <Ionicons name="settings-outline" size={size} color={color} />,
-				}}
-			/>
-		</Tabs>
+			<NativeTabs.Trigger name="index">
+				<NativeTabs.Trigger.Icon
+					sf={{ default: 'chart.bar', selected: 'chart.bar.fill' }}
+					md={{ default: 'analytics', selected: 'analytics' }}
+				/>
+				<NativeTabs.Trigger.Label>Dashboard</NativeTabs.Trigger.Label>
+			</NativeTabs.Trigger>
+			<NativeTabs.Trigger name="bookings">
+				<NativeTabs.Trigger.Icon
+					sf={{ default: 'calendar', selected: 'calendar' }}
+					md={{ default: 'calendar_today', selected: 'calendar_today' }}
+				/>
+				<NativeTabs.Trigger.Label>Bookings</NativeTabs.Trigger.Label>
+			</NativeTabs.Trigger>
+			<NativeTabs.Trigger name="settings">
+				<NativeTabs.Trigger.Icon
+					sf={{ default: 'gearshape', selected: 'gearshape.fill' }}
+					md={{ default: 'settings', selected: 'settings' }}
+				/>
+				<NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+			</NativeTabs.Trigger>
+		</NativeTabs>
 	);
 }

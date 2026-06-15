@@ -48,6 +48,9 @@
         "projectId": "6670ae2f-f612-4538-b36c-6955d01288a2"
       }
     },
-    "owner": "jahanexpo"
+    "owner": "jahanexpo",
+    "plugins": [
+      "react-native-bottom-tabs"
+    ]
   }
 }
