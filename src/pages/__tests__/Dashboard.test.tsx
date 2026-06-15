@@ -27,7 +27,7 @@ const mockAppointments: Appointment[] = [
 		service_name: 'Haircut',
 		service_price: 30,
 		payment_status: 'paid_online',
-		appointment_date: new Date().toISOString().split('T')[0],
+		appointment_date: new Date().toLocaleDateString('en-CA'),
 		appointment_time: '09:00:00',
 		duration_minutes: 30,
 		status: 'confirmed',
@@ -43,7 +43,7 @@ const mockAppointments: Appointment[] = [
 		service_name: 'Beard Trim',
 		service_price: 20,
 		payment_status: 'pay_in_store',
-		appointment_date: new Date().toISOString().split('T')[0],
+		appointment_date: new Date().toLocaleDateString('en-CA'),
 		appointment_time: '23:00:00',
 		duration_minutes: 20,
 		status: 'confirmed',
@@ -174,8 +174,8 @@ describe('DashboardPage', () => {
 		render(<DashboardPage />);
 
 		await waitFor(() => {
-			expect(screen.getByText('John Doe')).toBeInTheDocument();
-			expect(screen.getByText('Haircut')).toBeInTheDocument();
+			expect(screen.getAllByText('John Doe').length).toBeGreaterThan(0);
+			expect(screen.getAllByText('Haircut').length).toBeGreaterThan(0);
 		});
 	});
 

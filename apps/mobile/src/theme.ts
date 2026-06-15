@@ -1,0 +1,55 @@
+import { MD3DarkTheme, MD3Theme } from 'react-native-paper';
+
+// Matches the web app's shadcn/Tailwind dark theme (src/index.css)
+export const colors = {
+	background: '#151d27',
+	foreground: '#ccd9e8',
+	card: '#16202b',
+	cardForeground: '#ccd9e8',
+	muted: '#1e2a38',
+	mutedForeground: '#8fa4b8',
+	primary: '#2b8bf7',
+	primaryForeground: '#ffffff',
+	secondary: '#23415e',
+	secondaryForeground: '#e8f1f8',
+	accent: '#4dd9e6',
+	accentForeground: '#ffffff',
+	destructive: '#ef4444',
+	destructiveForeground: '#ffffff',
+	border: '#3a4f64',
+	input: '#3a4f64',
+	ring: '#6ab2ff',
+};
+
+export const theme: MD3Theme = {
+	...MD3DarkTheme,
+	colors: {
+		...MD3DarkTheme.colors,
+		background: colors.background,
+		onBackground: colors.foreground,
+		surface: colors.card,
+		onSurface: colors.cardForeground,
+		surfaceVariant: colors.muted,
+		onSurfaceVariant: colors.mutedForeground,
+		primary: colors.primary,
+		onPrimary: colors.primaryForeground,
+		secondary: colors.secondary,
+		onSecondary: colors.secondaryForeground,
+		tertiary: colors.accent,
+		onTertiary: colors.accentForeground,
+		error: colors.destructive,
+		onError: colors.destructiveForeground,
+		outline: colors.border,
+		outlineVariant: colors.border,
+		elevation: {
+			...MD3DarkTheme.colors.elevation,
+			level0: colors.background,
+			level1: colors.card,
+			level2: colors.card,
+			level3: colors.card,
+			level4: colors.card,
+			level5: colors.card,
+		},
+	},
+	roundness: 3,
+};
