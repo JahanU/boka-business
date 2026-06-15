@@ -10,10 +10,7 @@
     "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bokabusiness.staff",
-      "associatedDomains": [
-        "applinks:com.bokabusiness.staff"
-      ]
+      "bundleIdentifier": "com.bokabusiness.staff"
     },
     "android": {
       "package": "com.bokabusiness.staff",
