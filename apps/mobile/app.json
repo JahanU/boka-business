@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "Boka Business",
+    "slug": "boka-business",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "com.bokabusiness.staff",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bokabusiness.staff"
+    },
+    "android": {
+      "package": "com.bokabusiness.staff",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "com.bokabusiness.staff",
+              "host": "*"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6670ae2f-f612-4538-b36c-6955d01288a2"
+      }
+    },
+    "owner": "jahanexpo",
+    "plugins": [
+      "react-native-bottom-tabs"
+    ]
+  }
+}

@@ -12,13 +12,24 @@ export default [
       'node_modules',
       'public',
       '.netlify',
-      'netlify/.netlify'
+      'netlify/.netlify',
+      'packages/shared/dist',
+      'coverage',
+      '**/*.config.cjs',
+      '**/jest-setup.cjs',
+      'apps/mobile/metro.config.js'
     ]
   },
   js.configs.recommended,
   ...tsPlugin.configs['flat/recommended'],
   {
-    files: ['src/**/*.{js,ts,tsx}', 'netlify/functions/**/*.{js,ts}'],
+    files: [
+      'src/**/*.{js,ts,tsx}',
+      'packages/shared/src/**/*.{js,ts,tsx}',
+      'apps/mobile/src/**/*.{js,ts,tsx}',
+      'apps/mobile/app/**/*.{js,ts,tsx}',
+      'netlify/functions/**/*.{js,ts}'
+    ],
     languageOptions: {
       parser: tsParser,
       ecmaVersion: 'latest',
