@@ -33,7 +33,7 @@ export function DashboardLayout() {
 					</NavLink>
 
 					{/* Desktop Navigation */}
-					<nav className="hidden md:flex items-center gap-1">
+					<nav className="hidden md:flex flex-1 items-center justify-center gap-1">
 						{navigationLinks.map(({ href, label, icon: Icon }) => {
 							return (
 								<NavLink
