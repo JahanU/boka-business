@@ -70,6 +70,7 @@ export function StaffAvailability() {
 
 					<TabsContent value="schedule" className="mt-0 focus-visible:outline-none outline-none ring-0">
 						<WeeklySchedule
+							key={availability.map((a) => a.id).join(',')}
 							staffId={staff.id}
 							availability={availability.filter((a) => a.availability_type === 'working_hours')}
 							onUpdate={loadAvailability}

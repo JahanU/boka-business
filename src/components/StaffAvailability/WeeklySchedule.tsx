@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -40,13 +40,6 @@ export function WeeklySchedule({ staffId, availability, onUpdate, loading }: Wee
 
 	const [schedule, setSchedule] = useState<Record<number, DaySchedule>>(getInitialSchedule);
 	const [saving, setSaving] = useState(false);
-
-	// Sync local state when availability data is loaded or updated
-	useEffect(() => {
-		if (!loading) {
-			setSchedule(getInitialSchedule());
-		}
-	}, [loading, getInitialSchedule]);
 
 	const handleToggleDay = (dayIndex: number) => {
 		setSchedule((prev) => ({

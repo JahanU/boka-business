@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { vi } from 'vitest';
 import DashboardPage from '../Dashboard';
 import { Appointment } from '@/types';
@@ -174,8 +174,10 @@ describe('DashboardPage', () => {
 		render(<DashboardPage />);
 
 		await waitFor(() => {
-			expect(screen.getByText('John Doe')).toBeInTheDocument();
-			expect(screen.getByText('Haircut')).toBeInTheDocument();
+			const scheduleHeading = screen.getByText("Today's Schedule");
+			const scheduleCard = scheduleHeading.closest('.rounded-xl') as HTMLElement;
+			expect(within(scheduleCard).getByText('John Doe')).toBeInTheDocument();
+			expect(within(scheduleCard).getByText('Haircut')).toBeInTheDocument();
 		});
 	});
 

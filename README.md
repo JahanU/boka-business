@@ -38,7 +38,7 @@ A modern, full-featured business management platform for salons and barbershops.
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 18+ and pnpm
 - Supabase account and project
 - Stripe account (for payment processing)
 - Netlify account (for serverless functions)
@@ -53,7 +53,7 @@ A modern, full-featured business management platform for salons and barbershops.
 
 2. **Install dependencies**
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. **Configure environment variables**
@@ -82,7 +82,7 @@ A modern, full-featured business management platform for salons and barbershops.
 
 6. **Start the development server**
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
 7. **Run Netlify functions locally** (in a separate terminal)
@@ -92,13 +92,13 @@ A modern, full-featured business management platform for salons and barbershops.
 
 ### Available Scripts
 
-- `npm run dev` - Start Vite development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run test` - Run tests in watch mode
-- `npm run test:coverage` - Generate test coverage report
-- `npm run lint` - Run ESLint
-- `npm run typecheck` - Run TypeScript type checking
+- `pnpm run dev` - Start Vite development server
+- `pnpm run build` - Build for production
+- `pnpm run preview` - Preview production build
+- `pnpm run test` - Run tests in watch mode
+- `pnpm run test:coverage` - Generate test coverage report
+- `pnpm run lint` - Run ESLint
+- `pnpm run typecheck` - Run TypeScript type checking
 
 ## Built With
 
