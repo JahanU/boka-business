@@ -23,7 +23,7 @@ export function DashboardLayout() {
 		<div className="min-h-screen bg-background flex flex-col">
 			{/* Header */}
 			<header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-				<div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
+				<div className="relative mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
 					{/* Logo */}
 					<NavLink to="/" className="flex items-center gap-2">
 						<span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
@@ -33,7 +33,7 @@ export function DashboardLayout() {
 					</NavLink>
 
 					{/* Desktop Navigation */}
-					<nav className="hidden md:flex flex-1 items-center justify-center gap-1">
+					<nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-1">
 						{navigationLinks.map(({ href, label, icon: Icon }) => {
 							return (
 								<NavLink
