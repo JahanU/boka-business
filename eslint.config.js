@@ -8,7 +8,7 @@ import tsPlugin from '@typescript-eslint/eslint-plugin'; // TypeScript specific 
 export default [
   {
     ignores: [
-      'dist',
+      '**/dist/**',
       'node_modules',
       'public',
       '.netlify',
