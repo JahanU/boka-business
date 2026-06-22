@@ -1,8 +1,14 @@
 import { supabase } from '@/config/supabaseClient';
+import { isDemoMode } from '@/lib/demo';
+import { getDemoAvailability } from '@/lib/demoData';
 import type { StaffAvailability, AvailabilityFormData } from '@/types';
 
 export const availabilityService = {
 	async getByStaffId(staffId: string): Promise<StaffAvailability[]> {
+		if (isDemoMode()) {
+			return getDemoAvailability();
+		}
+
 		const { data, error } = await supabase
 			.from('staff_availability')
 			.select('*')
@@ -19,6 +25,10 @@ export const availabilityService = {
 	},
 
 	async getByType(staffId: string, type: string): Promise<StaffAvailability[]> {
+		if (isDemoMode()) {
+			return getDemoAvailability().filter((a) => a.availability_type === type);
+		}
+
 		const { data, error } = await supabase
 			.from('staff_availability')
 			.select('*')
@@ -36,6 +46,10 @@ export const availabilityService = {
 	},
 
 	async create(staffId: string, formData: AvailabilityFormData): Promise<StaffAvailability | null> {
+		if (isDemoMode()) {
+			return null;
+		}
+
 		const { data, error } = await supabase
 			.from('staff_availability')
 			.insert({
@@ -54,6 +68,10 @@ export const availabilityService = {
 	},
 
 	async update(id: string, updates: Partial<AvailabilityFormData>): Promise<StaffAvailability | null> {
+		if (isDemoMode()) {
+			return null;
+		}
+
 		const { data, error } = await supabase
 			.from('staff_availability')
 			.update(updates)
@@ -70,6 +88,10 @@ export const availabilityService = {
 	},
 
 	async delete(id: string): Promise<boolean> {
+		if (isDemoMode()) {
+			return true;
+		}
+
 		const { error } = await supabase
 			.from('staff_availability')
 			.delete()
@@ -92,6 +114,10 @@ export const availabilityService = {
 		endTime?: string,
 		excludeId?: string
 	): Promise<boolean> {
+		if (isDemoMode()) {
+			return true;
+		}
+
 		let query = supabase
 			.from('staff_availability')
 			.select('*')

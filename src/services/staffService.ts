@@ -1,8 +1,14 @@
 import { supabase } from '@/config/supabaseClient';
+import { isDemoMode } from '@/lib/demo';
+import { demoStaff } from '@/lib/demoData';
 import type { Staff } from '@/types';
 
 export const staffService = {
 	async getByUserId(userId: string): Promise<Staff | null> {
+		if (isDemoMode()) {
+			return demoStaff;
+		}
+
 		const { data, error } = await supabase
 			.from('staff')
 			.select('*, businesses(*)')
@@ -17,6 +23,10 @@ export const staffService = {
 	},
 
 	async getById(id: string): Promise<Staff | null> {
+		if (isDemoMode()) {
+			return demoStaff;
+		}
+
 		const { data, error } = await supabase
 			.from('staff')
 			.select('*')
@@ -32,6 +42,10 @@ export const staffService = {
 	},
 
 	async getByBusinessId(businessId: string): Promise<Staff[]> {
+		if (isDemoMode()) {
+			return [demoStaff];
+		}
+
 		const { data, error } = await supabase
 			.from('staff')
 			.select('*')
@@ -46,6 +60,10 @@ export const staffService = {
 	},
 
 	async create(staff: Omit<Staff, 'id' | 'created_at' | 'updated_at'>): Promise<Staff | null> {
+		if (isDemoMode()) {
+			return demoStaff;
+		}
+
 		const { data, error } = await supabase
 			.from('staff')
 			.insert(staff)
@@ -61,6 +79,10 @@ export const staffService = {
 	},
 
 	async update(id: string, updates: Partial<Staff>): Promise<Staff | null> {
+		if (isDemoMode()) {
+			return demoStaff;
+		}
+
 		const { data, error } = await supabase
 			.from('staff')
 			.update(updates)
