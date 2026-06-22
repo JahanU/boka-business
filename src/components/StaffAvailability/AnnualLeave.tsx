@@ -30,6 +30,9 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 
 		// Demo mode: allow date selection but don't persist anything.
 		if (isDemoMode()) {
+			setDateRange(undefined);
+			setIsAdding(false);
+			onUpdate();
 			return;
 		}
 
