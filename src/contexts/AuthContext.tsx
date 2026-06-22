@@ -20,12 +20,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const getDemoUser = (): User =>
+	({
+		id: DEMO_USER_ID,
+		email: demoStaff.email,
+		user_metadata: { name: demoStaff.name },
+	} as unknown as User);
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState<User | null>(null);
-	const [session, setSession] = useState<Session | null>(null);
-	const [staff, setStaff] = useState<Staff | null>(null);
-	const [business, setBusiness] = useState<Business | null>(null);
-	const [loading, setLoading] = useState(true);
+	const [user, setUser] = useState<User | null>(() =>
+		isDemoMode() ? getDemoUser() : null
+	);
+	const [session, setSession] = useState<Session | null>(() =>
+		isDemoMode() ? ({ user: getDemoUser() } as unknown as Session) : null
+	);
+	const [staff, setStaff] = useState<Staff | null>(() =>
+		isDemoMode() ? demoStaff : null
+	);
+	const [business, setBusiness] = useState<Business | null>(() =>
+		isDemoMode() ? demoBusiness : null
+	);
+	const [loading, setLoading] = useState(() => !isDemoMode());
 
 	// Fetch staff and business data when user is authenticated
 	const fetchStaffAndBusiness = async (userId: string) => {
@@ -39,19 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	};
 
 	useEffect(() => {
-		// Demo mode: skip Supabase auth and serve synthetic session + mocked data.
+		// Demo mode: skip Supabase auth and use the synthetic session initialized in state.
 		if (isDemoMode()) {
-			const demoUser = {
-				id: DEMO_USER_ID,
-				email: demoStaff.email,
-				user_metadata: { name: demoStaff.name },
-			} as unknown as User;
-
-			setSession({ user: demoUser } as unknown as Session);
-			setUser(demoUser);
-			setStaff(demoStaff);
-			setBusiness(demoBusiness);
-			setLoading(false);
 			return;
 		}
 
