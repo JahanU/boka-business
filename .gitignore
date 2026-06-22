@@ -26,6 +26,7 @@ coverage
 *.sln
 *.sw?
 .env
+.env.demo
 
 # Local Netlify folder
 .netlify
