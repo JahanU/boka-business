@@ -6,6 +6,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
+import { isDemoMode } from '@/lib/demo';
 
 const highlights = [
 	{
@@ -45,6 +46,11 @@ function HomePage() {
 						<Button asChild size="lg">
 							<Link to="/login">Go to staff login</Link>
 						</Button>
+						{isDemoMode() && (
+							<Button asChild variant="outline" size="lg">
+								<Link to="/demo">View demo</Link>
+							</Button>
+						)}
 					</div>
 				</div>
 			</section>

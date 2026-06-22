@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { isDemoMode } from '@/lib/demo';
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
 	const { user, loading } = useAuth();
@@ -11,7 +12,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 		return null;
 	}
 
-	if (!user) {
+	if (!user && !isDemoMode()) {
 		return <Navigate to="/login" replace state={{ from: location }} />;
 	}
 

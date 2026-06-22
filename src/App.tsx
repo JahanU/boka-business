@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import BookingsPage from '@/pages/Bookings';
@@ -19,6 +19,7 @@ function App() {
 						<Route index element={<HomePage />} />
 						<Route path="/login" element={<LoginPage />} />
 						<Route path="/reset-password" element={<ResetPasswordPage />} />
+						<Route path="/demo" element={<Navigate to="/dashboard" replace />} />
 					</Route>
 
 					<Route

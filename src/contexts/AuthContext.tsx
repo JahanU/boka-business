@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../config/supabaseClient';
 import { staffService } from '@/services/staffService';
+import { isDemoMode } from '@/lib/demo';
+import { demoBusiness, demoStaff, DEMO_USER_ID } from '@/lib/demoData';
 import type { Staff, Business } from '@/types';
 
 interface AuthContextType {
@@ -37,6 +39,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	};
 
 	useEffect(() => {
+		// Demo mode: skip Supabase auth and serve synthetic session + mocked data.
+		if (isDemoMode()) {
+			const demoUser = {
+				id: DEMO_USER_ID,
+				email: demoStaff.email,
+				user_metadata: { name: demoStaff.name },
+			} as unknown as User;
+
+			setSession({ user: demoUser } as unknown as Session);
+			setUser(demoUser);
+			setStaff(demoStaff);
+			setBusiness(demoBusiness);
+			setLoading(false);
+			return;
+		}
+
 		/**
 		 * 1) On mount: fetch the initial session from Supabase.
 		 * This covers page refreshes / returning users where a session may already exist.
@@ -74,6 +92,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	}, []);
 
 	const signIn = async (email: string, password: string) => {
+		if (isDemoMode()) {
+			return { error: null };
+		}
+
 		const { data, error } = await supabase.auth.signInWithPassword({
 			email: email.trim(),
 			password,
@@ -88,10 +110,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	};
 
 	const signOut = async () => {
+		if (isDemoMode()) {
+			return;
+		}
 		await supabase.auth.signOut();
 	};
 
 	const resetPassword = async (email: string) => {
+		if (isDemoMode()) {
+			return { error: null };
+		}
+
 		const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
 			redirectTo: `${window.location.origin}/reset-password`,
 		});
@@ -99,6 +128,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	};
 
 	const updatePassword = async (password: string) => {
+		if (isDemoMode()) {
+			return { error: null };
+		}
+
 		const { error } = await supabase.auth.updateUser({ password });
 		return { error };
 	};
