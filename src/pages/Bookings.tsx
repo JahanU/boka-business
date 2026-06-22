@@ -8,6 +8,7 @@ import { Loader2, Calendar, Clock, User, Phone, Mail, Trash2, Scissors, History,
 import { format, isBefore } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { isDemoMode } from "@/lib/demo";
 
 export default function BookingsPage() {
 	const { business, staff } = useAuth();
@@ -47,6 +48,11 @@ export default function BookingsPage() {
 	}, [bookings]);
 
 	const handleDelete = async (appointment: Appointment) => {
+		// Demo mode: action buttons are no-ops so prospects can click freely.
+		if (isDemoMode()) {
+			return;
+		}
+
 		if (!confirm('Are you sure you want to delete this booking?')) return;
 
 		const success = await appointmentService.cancel(appointment, staff!.email, business!.name);
@@ -167,6 +173,7 @@ export default function BookingsPage() {
 										variant="ghost"
 										size="icon"
 										onClick={() => handleDelete(booking)}
+										title={isDemoMode() ? 'Demo mode — changes are not saved' : 'Cancel booking'}
 										className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full h-9 w-9"
 									>
 										<Trash2 className="h-4 w-4" />
