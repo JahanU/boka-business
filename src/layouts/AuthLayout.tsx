@@ -14,7 +14,10 @@ export function AuthLayout() {
 			<div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 pb-16 pt-10">
 				<header className="flex items-center justify-between">
 					<Link to="/" className="flex items-center gap-2 text-lg font-semibold">
-						<span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold">
+						<span
+							aria-hidden="true"
+							className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold"
+						>
 							B
 						</span>
 						<div className="leading-tight">
