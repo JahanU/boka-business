@@ -30,6 +30,3 @@ coverage
 
 # Local Netlify folder
 .netlify
-
-# Worktrees
-.worktrees
