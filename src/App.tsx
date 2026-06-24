@@ -5,6 +5,7 @@ import { AuthLayout } from '@/layouts/AuthLayout';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import HomePage from '@/pages/Home';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 
 const LoginPage = lazy(() => import('@/pages/Login'));
@@ -15,16 +16,18 @@ const SettingsPage = lazy(() => import('@/pages/Settings'));
 
 function PageSuspense({ children }: { children: ReactNode }) {
 	return (
-		<Suspense
-			fallback={
-				<div className="flex h-[400px] items-center justify-center">
-					<Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-					<span className="sr-only">Loading page</span>
-				</div>
-			}
-		>
-			{children}
-		</Suspense>
+		<ErrorBoundary>
+			<Suspense
+				fallback={
+					<div className="flex h-[400px] items-center justify-center">
+						<Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
+						<span className="sr-only">Loading page</span>
+					</div>
+				}
+			>
+				{children}
+			</Suspense>
+		</ErrorBoundary>
 	);
 }
 

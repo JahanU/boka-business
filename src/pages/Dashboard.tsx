@@ -19,7 +19,9 @@ import {
 	ArrowRight
 } from "lucide-react";
 
-const WeeklyRevenueChart = lazy(() => import("@/components/WeeklyRevenueChart"));
+const WeeklyRevenueChart = lazy(
+	() => import(/* webpackPrefetch: true */ "@/components/WeeklyRevenueChart"),
+);
 
 function CenterSpinner() {
 	return (
@@ -120,9 +122,7 @@ function DashboardSkeleton() {
 
 			{/* Charts and Insights Row */}
 			<div className="grid gap-4 md:grid-cols-2">
-				<Suspense fallback={<ChartSkeleton />}>
-					<ChartSkeleton />
-				</Suspense>
+				<ChartSkeleton />
 				<InsightsSkeleton />
 			</div>
 
