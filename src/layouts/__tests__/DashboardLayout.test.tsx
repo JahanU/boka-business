@@ -104,7 +104,7 @@ describe('DashboardLayout', () => {
 	it('renders the logo as a link to home', () => {
 		renderWithRouter();
 
-		const logoLink = screen.getByRole('link', { name: /boka businesses/i });
+		const logoLink = screen.getByRole('link', { name: 'Boka Businesses' });
 		expect(logoLink).toHaveAttribute('href', '/');
 	});
 

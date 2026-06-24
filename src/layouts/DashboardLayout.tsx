@@ -26,7 +26,10 @@ export function DashboardLayout() {
 				<div className="relative mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
 					{/* Logo */}
 					<NavLink to="/" className="flex items-center gap-2">
-						<span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
+						<span
+							aria-hidden="true"
+							className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm"
+						>
 							B
 						</span>
 						<span className="font-semibold">Boka Businesses</span>
