@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TimePicker } from '@/components/ui/time-picker';
 import { availabilityService } from '@/services/availabilityService';
+import { isDemoMode } from '@/lib/demo';
 import type { StaffAvailability } from '@/types';
 import { DAY_NAMES } from '@/types';
 import { Loader2, Save } from 'lucide-react';
@@ -62,6 +63,11 @@ export function WeeklySchedule({ staffId, availability, onUpdate, loading }: Wee
 	};
 
 	const handleSave = async () => {
+		// Demo mode: let users play with the form, but never persist changes.
+		if (isDemoMode()) {
+			return;
+		}
+
 		setSaving(true);
 
 		try {
@@ -177,7 +183,7 @@ export function WeeklySchedule({ staffId, availability, onUpdate, loading }: Wee
 				))}
 			</div>
 
-			<Button onClick={handleSave} disabled={saving} className="w-full shadow-lg hover:shadow-xl transition-shadow py-6 h-auto text-base">
+			<Button onClick={handleSave} disabled={saving} title={isDemoMode() ? 'Demo mode — changes are not saved' : 'Save weekly schedule'} className="w-full shadow-lg hover:shadow-xl transition-shadow py-6 h-auto text-base">
 				{saving ? (
 					<>
 						<Loader2 className="mr-2 h-5 w-5 animate-spin" />

@@ -142,12 +142,8 @@ describe('AnnualLeave', () => {
 	it('renders delete button for each leave entry', () => {
 		render(<AnnualLeave {...defaultProps} availability={mockLeaveEntries} />);
 
-		const deleteButtons = screen.getAllByRole('button', { name: '' });
-		// Filter for delete buttons (those with Trash2 icon)
-		const trashButtons = deleteButtons.filter((btn) =>
-			btn.querySelector('svg.lucide-trash-2') || btn.classList.contains('hover:text-destructive')
-		);
-		expect(trashButtons.length).toBeGreaterThan(0);
+		const deleteButtons = screen.getAllByRole('button', { name: /delete leave entry/i });
+		expect(deleteButtons.length).toBe(2);
 	});
 
 	it('calls delete service when delete button is clicked and confirmed', async () => {

@@ -1,8 +1,14 @@
 import { supabase } from '@/config/supabaseClient';
+import { isDemoMode } from '@/lib/demo';
+import { getDemoAppointments } from '@/lib/demoData';
 import type { Appointment } from '@/types';
 
 export const appointmentService = {
 	async getByBusinessId(businessId: string): Promise<Appointment[]> {
+		if (isDemoMode()) {
+			return getDemoAppointments();
+		}
+
 		const { data, error } = await supabase
 			.from('appointments')
 			.select('*')
@@ -19,6 +25,10 @@ export const appointmentService = {
 	},
 
 	async getByStaffId(staffId: string): Promise<Appointment[]> {
+		if (isDemoMode()) {
+			return getDemoAppointments();
+		}
+
 		const { data, error } = await supabase
 			.from('appointments')
 			.select('*')
@@ -35,6 +45,10 @@ export const appointmentService = {
 	},
 
 	async updateStatus(id: string, status: Appointment['status']): Promise<boolean> {
+		if (isDemoMode()) {
+			return true;
+		}
+
 		const { error } = await supabase
 			.from('appointments')
 			.update({ status, updated_at: new Date().toISOString() })
@@ -49,6 +63,10 @@ export const appointmentService = {
 	},
 
 	async cancel(appointment: Appointment, staffEmail: string, businessName: string): Promise<boolean> {
+		if (isDemoMode()) {
+			return true;
+		}
+
 		// 1. Send the cancellation email via Netlify function
 		try {
 			const response = await fetch('/.netlify/functions/cancel-booking', {

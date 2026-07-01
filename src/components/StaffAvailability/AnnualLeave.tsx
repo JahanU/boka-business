@@ -4,6 +4,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import { availabilityService } from '@/services/availabilityService';
+import { isDemoMode } from '@/lib/demo';
 import type { StaffAvailability } from '@/types';
 import { Loader2, Calendar as CalendarIcon, Trash2, Plus } from 'lucide-react';
 import { format } from 'date-fns';
@@ -26,6 +27,15 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 		if (!dateRange?.from) {
 			return;
 		}
+
+		// Demo mode: allow date selection but don't persist anything.
+		if (isDemoMode()) {
+			setDateRange(undefined);
+			setIsAdding(false);
+			onUpdate();
+			return;
+		}
+
 		setSaving(true);
 
 		try {
@@ -50,6 +60,11 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 	};
 
 	const handleDelete = async (id: string) => {
+		// Demo mode: delete buttons are no-ops.
+		if (isDemoMode()) {
+			return;
+		}
+
 		if (!confirm('Are you sure you want to delete this leave entry?')) return;
 
 		const success = await availabilityService.delete(id);
@@ -101,6 +116,7 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 								size="icon"
 								onClick={() => handleDelete(entry.id)}
 								className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full h-8 w-8"
+								title={isDemoMode() ? 'Demo mode — changes are not saved' : 'Delete leave entry'}
 							>
 								<Trash2 className="h-4 w-4" />
 							</Button>
@@ -110,7 +126,7 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 			</div>
 
 			{!isAdding ? (
-				<Button onClick={() => setIsAdding(true)} variant="outline" className="w-full h-11 rounded-xl glassmorphism-effect">
+				<Button onClick={() => setIsAdding(true)} variant="outline" title={isDemoMode() ? 'Demo mode — changes are not saved' : 'Add annual leave range'} className="w-full h-11 rounded-xl glassmorphism-effect">
 					<Plus className="mr-2 h-4 w-4" />
 					Add Annual Leave Range
 				</Button>
@@ -156,7 +172,7 @@ export function AnnualLeave({ staffId, availability, onUpdate, loading }: Annual
 					</div>
 
 					<div className="flex gap-2 pt-2">
-						<Button onClick={handleAdd} disabled={saving || !dateRange?.from} className="flex-1 h-11 rounded-lg">
+						<Button onClick={handleAdd} disabled={saving || !dateRange?.from} title={isDemoMode() ? 'Demo mode — changes are not saved' : 'Save leave dates'} className="flex-1 h-11 rounded-lg">
 							{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
 							Save Leave
 						</Button>

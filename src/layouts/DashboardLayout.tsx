@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Calendar, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { isDemoMode } from '@/lib/demo';
 import { cn } from '@/lib/utils';
 
 const navigationLinks = [
@@ -61,18 +62,30 @@ export function DashboardLayout() {
 
 					{/* Desktop Logout */}
 					<div className="hidden md:flex items-center gap-2">
-						<Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2">
-							<LogOut className="h-4 w-4" />
-							Logout
-						</Button>
+						{isDemoMode() ? (
+							<span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+								Demo Mode
+							</span>
+						) : (
+							<Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2">
+								<LogOut className="h-4 w-4" />
+								Logout
+							</Button>
+						)}
 					</div>
 
 					{/* Mobile - Just Logo and Logout */}
 					<div className="md:hidden">
-						<Button variant="ghost" size="icon" onClick={handleSignOut}>
-							<LogOut className="h-5 w-5" />
-							<span className="sr-only">Logout</span>
-						</Button>
+						{isDemoMode() ? (
+							<span className="text-[10px] font-medium px-2 py-1 rounded-full bg-primary/10 text-primary">
+								Demo
+							</span>
+						) : (
+							<Button variant="ghost" size="icon" onClick={handleSignOut}>
+								<LogOut className="h-5 w-5" />
+								<span className="sr-only">Logout</span>
+							</Button>
+						)}
 					</div>
 				</div>
 			</header>

@@ -151,7 +151,6 @@ describe('DashboardPage', () => {
 
 		await waitFor(() => {
 			expect(screen.getByText('Paid Online')).toBeInTheDocument();
-			expect(screen.getByText('Pay in Store')).toBeInTheDocument();
 		});
 	});
 

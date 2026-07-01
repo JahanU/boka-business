@@ -15,7 +15,6 @@ import {
 	Clock,
 	PoundSterling,
 	CreditCard,
-	Wallet,
 	Loader2,
 	ArrowRight
 } from "lucide-react";
@@ -88,12 +87,6 @@ export default function DashboardPage() {
 									<CreditCard className="h-3 w-3" /> Online
 								</span>
 								<span className="font-medium">£{metrics.todayRevenueOnline.toFixed(2)}</span>
-							</div>
-							<div className="flex justify-between">
-								<span className="flex items-center gap-1">
-									<Wallet className="h-3 w-3" /> In Store
-								</span>
-								<span className="font-medium">£{metrics.todayRevenueInStore.toFixed(2)}</span>
 							</div>
 						</div>
 					</CardContent>
@@ -207,13 +200,6 @@ export default function DashboardPage() {
 									</span>
 									<span className="text-sm font-medium">£{metrics.paymentStatusSummary.paidOnline.toFixed(2)}</span>
 								</div>
-								<div className="flex justify-between items-center">
-									<span className="text-sm text-muted-foreground flex items-center gap-2">
-										<Wallet className="h-4 w-4" />
-										Pay in Store
-									</span>
-									<span className="text-sm font-medium">£{metrics.paymentStatusSummary.payInStore.toFixed(2)}</span>
-								</div>
 							</div>
 						</div>
 
@@ -281,7 +267,7 @@ export default function DashboardPage() {
 											variant={apt.payment_status === 'paid_online' ? 'default' : 'secondary'}
 											className="text-xs"
 										>
-											{apt.payment_status === 'paid_online' ? 'Paid' : 'Pay in store'}
+											{apt.payment_status === 'paid_online' ? 'Paid' : 'Pending'}
 										</Badge>
 									</div>
 								</div>

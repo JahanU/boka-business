@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../config/supabaseClient';
 import { staffService } from '@/services/staffService';
+import { isDemoMode } from '@/lib/demo';
+import { demoBusiness, demoStaff, DEMO_USER_ID } from '@/lib/demoData';
 import type { Staff, Business } from '@/types';
 
 interface AuthContextType {
@@ -18,12 +20,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const getDemoUser = (): User =>
+	({
+		id: DEMO_USER_ID,
+		email: demoStaff.email,
+		user_metadata: { name: demoStaff.name },
+	} as unknown as User);
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState<User | null>(null);
-	const [session, setSession] = useState<Session | null>(null);
-	const [staff, setStaff] = useState<Staff | null>(null);
-	const [business, setBusiness] = useState<Business | null>(null);
-	const [loading, setLoading] = useState(true);
+	const [user, setUser] = useState<User | null>(() =>
+		isDemoMode() ? getDemoUser() : null
+	);
+	const [session, setSession] = useState<Session | null>(() =>
+		isDemoMode() ? ({ user: getDemoUser() } as unknown as Session) : null
+	);
+	const [staff, setStaff] = useState<Staff | null>(() =>
+		isDemoMode() ? demoStaff : null
+	);
+	const [business, setBusiness] = useState<Business | null>(() =>
+		isDemoMode() ? demoBusiness : null
+	);
+	const [loading, setLoading] = useState(() => !isDemoMode());
 
 	// Fetch staff and business data when user is authenticated
 	const fetchStaffAndBusiness = async (userId: string) => {
@@ -37,6 +54,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	};
 
 	useEffect(() => {
+		// Demo mode: skip Supabase auth and use the synthetic session initialized in state.
+		if (isDemoMode()) {
+			return;
+		}
+
 		/**
 		 * 1) On mount: fetch the initial session from Supabase.
 		 * This covers page refreshes / returning users where a session may already exist.
@@ -74,6 +96,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	}, []);
 
 	const signIn = async (email: string, password: string) => {
+		if (isDemoMode()) {
+			return { error: null };
+		}
+
 		const { data, error } = await supabase.auth.signInWithPassword({
 			email: email.trim(),
 			password,
@@ -88,10 +114,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	};
 
 	const signOut = async () => {
+		if (isDemoMode()) {
+			return;
+		}
 		await supabase.auth.signOut();
 	};
 
 	const resetPassword = async (email: string) => {
+		if (isDemoMode()) {
+			return { error: null };
+		}
+
 		const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
 			redirectTo: `${window.location.origin}/reset-password`,
 		});
@@ -99,6 +132,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	};
 
 	const updatePassword = async (password: string) => {
+		if (isDemoMode()) {
+			return { error: null };
+		}
+
 		const { error } = await supabase.auth.updateUser({ password });
 		return { error };
 	};
