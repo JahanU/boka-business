@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo, Suspense, lazy } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatBusinessName } from "@/lib/utils";
@@ -18,10 +19,14 @@ import {
 	Loader2,
 	ArrowRight
 } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
-const WeeklyRevenueChart = lazy(
-	() => import(/* webpackPrefetch: true */ "@/components/WeeklyRevenueChart"),
-);
+const chartConfig = {
+	revenue: {
+		label: "Revenue",
+		color: "hsl(var(--primary))",
+	},
+};
 
 function CenterSpinner() {
 	return (
@@ -260,9 +265,29 @@ export default function DashboardPage() {
 
 					{/* Charts and Insights Row */}
 					<div className="grid gap-4 md:grid-cols-2">
-						<Suspense fallback={<ChartSkeleton />}>
-							<WeeklyRevenueChart dailyRevenue={metrics.dailyRevenue} />
-						</Suspense>
+						{/* Weekly Revenue Chart */}
+						<Card>
+							<CardHeader>
+								<CardTitle>7-Day Revenue</CardTitle>
+								<CardDescription>Daily revenue for the past week</CardDescription>
+							</CardHeader>
+							<CardContent>
+								<ChartContainer config={chartConfig} className="aspect-auto h-[200px]">
+									<BarChart data={metrics.dailyRevenue}>
+										<CartesianGrid strokeDasharray="3 3" vertical={false} />
+										<XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
+										<YAxis
+											tickLine={false}
+											axisLine={false}
+											tickMargin={8}
+											tickFormatter={(value) => `£${value}`}
+										/>
+										<ChartTooltip content={<ChartTooltipContent />} />
+										<Bar dataKey="revenue" fill="var(--color-revenue)" radius={[4, 4, 0, 0]} />
+									</BarChart>
+								</ChartContainer>
+							</CardContent>
+						</Card>
 
 						{/* Payment Status & Popular Services */}
 						<Card>
