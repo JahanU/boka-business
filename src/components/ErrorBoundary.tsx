@@ -2,22 +2,17 @@ import { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
 	children: ReactNode;
-	fallback?: ReactNode;
 }
 
 interface State {
 	hasError: boolean;
-	error?: Error;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-	constructor(props: Props) {
-		super(props);
-		this.state = { hasError: false };
-	}
+	state: State = { hasError: false };
 
-	static getDerivedStateFromError(error: Error): State {
-		return { hasError: true, error };
+	static getDerivedStateFromError(): State {
+		return { hasError: true };
 	}
 
 	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -26,10 +21,6 @@ export class ErrorBoundary extends Component<Props, State> {
 
 	render() {
 		if (this.state.hasError) {
-			if (this.props.fallback) {
-				return this.props.fallback;
-			}
-
 			return (
 				<div className="flex h-[400px] flex-col items-center justify-center gap-4 p-6 text-center">
 					<h2 className="text-lg font-semibold">Something went wrong</h2>

@@ -4,11 +4,11 @@ import { Loader2 } from 'lucide-react';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 import HomePage from '@/pages/Home';
+import LoginPage from '@/pages/Login';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 
-const LoginPage = lazy(() => import('@/pages/Login'));
 const ResetPasswordPage = lazy(() => import('@/pages/ResetPassword'));
 const DashboardPage = lazy(() => import('@/pages/Dashboard'));
 const BookingsPage = lazy(() => import('@/pages/Bookings'));
@@ -55,7 +55,6 @@ function App() {
 							}
 						/>
 					</Route>
-
 					<Route
 						element={
 							<ProtectedRoute>
