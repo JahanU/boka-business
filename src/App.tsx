@@ -1,14 +1,35 @@
+import { Suspense, lazy, ReactNode } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
-import BookingsPage from '@/pages/Bookings';
-import SettingsPage from '@/pages/Settings';
-import DashboardPage from '@/pages/Dashboard';
 import HomePage from '@/pages/Home';
 import LoginPage from '@/pages/Login';
-import ResetPasswordPage from '@/pages/ResetPassword';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
+
+const ResetPasswordPage = lazy(() => import('@/pages/ResetPassword'));
+const DashboardPage = lazy(() => import('@/pages/Dashboard'));
+const BookingsPage = lazy(() => import('@/pages/Bookings'));
+const SettingsPage = lazy(() => import('@/pages/Settings'));
+
+function PageSuspense({ children }: { children: ReactNode }) {
+	return (
+		<ErrorBoundary>
+			<Suspense
+				fallback={
+					<div className="flex h-[400px] items-center justify-center">
+						<Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
+						<span className="sr-only">Loading page</span>
+					</div>
+				}
+			>
+				{children}
+			</Suspense>
+		</ErrorBoundary>
+	);
+}
 
 function App() {
 	return (
@@ -17,10 +38,23 @@ function App() {
 				<Routes>
 					<Route element={<AuthLayout />}>
 						<Route index element={<HomePage />} />
-						<Route path="/login" element={<LoginPage />} />
-						<Route path="/reset-password" element={<ResetPasswordPage />} />
+						<Route
+							path="/login"
+							element={
+								<PageSuspense>
+									<LoginPage />
+								</PageSuspense>
+							}
+						/>
+						<Route
+							path="/reset-password"
+							element={
+								<PageSuspense>
+									<ResetPasswordPage />
+								</PageSuspense>
+							}
+						/>
 					</Route>
-
 					<Route
 						element={
 							<ProtectedRoute>
@@ -28,9 +62,30 @@ function App() {
 							</ProtectedRoute>
 						}
 					>
-						<Route path="/dashboard" element={<DashboardPage />} />
-						<Route path="/bookings" element={<BookingsPage />} />
-						<Route path="/settings" element={<SettingsPage />} />
+						<Route
+							path="/dashboard"
+							element={
+								<PageSuspense>
+									<DashboardPage />
+								</PageSuspense>
+							}
+						/>
+						<Route
+							path="/bookings"
+							element={
+								<PageSuspense>
+									<BookingsPage />
+								</PageSuspense>
+							}
+						/>
+						<Route
+							path="/settings"
+							element={
+								<PageSuspense>
+									<SettingsPage />
+								</PageSuspense>
+							}
+						/>
 					</Route>
 				</Routes>
 			</Router>
